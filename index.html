@@ -1,213 +1,124 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Trox - الكبسولة الخالدة</title>
-  <style>
-    :root{
-      --accent: #00ccff;
-      --bg1: #000010;
-      --bg2: #0b1020;
-      --glass: rgba(255,255,255,0.05);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:"Cairo",sans-serif;background:radial-gradient(ellipse at center,var(--bg1) 0%,var(--bg2) 100%);color:#fff}
-    .wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px}
-    header{max-width:920px;text-align:center;padding:24px}
-    h1{color:var(--accent);font-size:2.4rem;margin:0 0 8px}
-    p.lead{color:#cfd6e0;max-width:700px;margin:0 auto 18px;line-height:1.5}
-    .btn {background:var(--accent);color:#000;padding:10px 20px;border-radius:999px;text-decoration:none;font-weight:700;display:inline-block}
-    /* card */
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-radius:12px;padding:18px;backdrop-filter: blur(6px);box-shadow:0 6px 22px rgba(0,0,0,0.6);width:100%;max-width:720px;margin-top:20px}
-    label{display:block;margin:8px 0 6px;font-size:0.95rem;color:#dbe6f0}
-    input[type="text"], textarea, select {
-      width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff;font-size:1rem;
-    }
-    textarea{min-height:100px;resize:vertical}
-    .row{display:flex;gap:12px}
-    .row .col{flex:1}
-    .actions{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
-    .small{font-size:0.85rem;color:#9fb0c7}
-    footer{opacity:0.6;margin-top:28px;font-size:0.85rem}
-
-    /* stars */
-    .stars, .twinkle {
-      position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:0;
-    }
-    .star {
-      position:absolute;background: linear-gradient(90deg,#fff,#bfefff);
-      border-radius:50%;
-      opacity:0.9;
-      transform:translateZ(0);
-      box-shadow:0 0 8px rgba(0,200,255,0.15);
-    }
-    /* shooting star */
-    .meteor {
-      position:fixed;top:-10%;left:-10%;width:3px;height:120px;background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(0,204,255,0.2));opacity:0;transform:rotate(35deg);
-      filter:blur(0.6px);z-index:1;
-    }
-
-    /* capsule list */
-    .capsules{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-    .capsule{padding:12px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
-    .capsule h4{margin:0 0 6px;color:var(--accent)}
-    .empty{opacity:0.6;text-align:center;padding:18px}
-
-    @media (max-width:560px){
-      h1{font-size:1.8rem}
-      .card{padding:14px}
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Trox – الفضاء الواسع والكبسولات</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    font-family: "Cairo", sans-serif;
+    background: radial-gradient(ellipse at center, #000010 0%, #000015 100%);
+    color: #fff;
+  }
+  canvas { display: block; }
+  .tooltip {
+    position: absolute;
+    background: rgba(0,0,0,0.8);
+    padding: 8px 12px;
+    border-radius: 8px;
+    pointer-events: none;
+    font-size: 0.9rem;
+    max-width: 200px;
+    display: none;
+  }
+</style>
 </head>
 <body>
-  <div class="stars" id="stars"></div>
-  <div class="meteor" id="meteor"></div>
+<canvas id="space"></canvas>
+<div id="tooltip" class="tooltip"></div>
+<script>
+const canvas = document.getElementById('space');
+const ctx = canvas.getContext('2d');
+let width = canvas.width = window.innerWidth;
+let height = canvas.height = window.innerHeight;
 
-  <div class="wrap">
-    <header>
-      <h1>⚡ Trox - الكبسولة الخالدة ⚡</h1>
-      <p class="lead">اكتب رسالة، احتفظ بها كبسولة رقمية، وشارك لحظة خالدة مع العالم. (نسخة تجريبية - تحفظ محليًا الآن)</p>
-      <a class="btn" href="#form">أنشئ كبسولتك الآن</a>
-    </header>
+window.addEventListener('resize', ()=>{
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+});
 
-    <section class="card" id="form">
-      <h3 style="margin:0 0 8px">إنشاء كبسولة جديدة</h3>
-      <div class="small">المدخلات تُحفظ محليًا كعرض تجريبي. لاحقًا سنربط قاعدة بيانات</div>
+// نجوم
+const stars = [];
+for(let i=0;i<150;i++){
+  stars.push({
+    x: Math.random()*width,
+    y: Math.random()*height,
+    size: Math.random()*2+1,
+    opacity: Math.random()*0.8+0.2
+  });
+}
 
-      <label>الاسم (اختياري)</label>
-      <input id="name" type="text" placeholder="اسمك أو لقبك">
+// كبسولات عشوائية
+const ranks = ["common","special","legend"];
+const capsules = [];
+for(let i=0;i<50;i++){
+  capsules.push({
+    x: Math.random()*2000-1000,
+    y: Math.random()*2000-1000,
+    title: "كبسولة "+(i+1),
+    message: "رسالة عشوائية "+(i+1),
+    rank: ranks[Math.floor(Math.random()*ranks.length)],
+    size: 8 + Math.random()*4
+  });
+}
 
-      <label>عنوان للكبسولة (سهل العثور)</label>
-      <input id="title" type="text" placeholder="مثال: رسالة لابني في المستقبل">
+// متغيرات التمرير
+let offsetX = 0, offsetY = 0;
+let isDragging = false;
+let dragStart = {};
 
-      <label>رسالتك</label>
-      <textarea id="message" placeholder="اكتب رسالتك هنا..."></textarea>
-
-      <div class="row" style="margin-top:8px">
-        <div class="col">
-          <label>رتبة الكبسولة</label>
-          <select id="rank">
-            <option value="common">عادية — $1</option>
-            <option value="special">خاصة — $5</option>
-            <option value="legend">خالدة — $20</option>
-          </select>
-        </div>
-        <div class="col">
-          <label>رؤية الكبسولة</label>
-          <select id="visibility">
-            <option value="public">عامة — يشاهدها الجميع</option>
-            <option value="private">خاصة — للاطلاع برابط فقط</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button id="saveBtn" class="btn">احفظ الكبسولة (عرض تجريبي)</button>
-        <button id="clearBtn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:10px 14px;border-radius:8px">مسح كل المحفوظ</button>
-      </div>
-
-      <div id="status" class="small" style="margin-top:10px;display:none"></div>
-    </section>
-
-    <section class="card" id="list">
-      <h3 style="margin:0 0 8px">كبسولات محفوظة (تجريبي)</h3>
-      <div id="capsulesContainer" class="capsules"></div>
-      <div id="emptyMsg" class="empty">لم تحفظ أي كبسولات بعد.</div>
-    </section>
-
-    <footer>مشروع تجريبي من <strong>Odae Waked</strong> © 2025</footer>
-  </div>
-
-  <script>
-    /* -------- stars generator -------- */
-    const starsEl = document.getElementById('stars');
-    const meteor = document.getElementById('meteor');
-
-    function rand(min,max){return Math.random()*(max-min)+min}
-    function createStars(count=120){
-      for(let i=0;i<count;i++){
-        const s = document.createElement('div');
-        s.className='star';
-        const size = Math.round(rand(1,4));
-        s.style.width = s.style.height = size+'px';
-        s.style.left = rand(0,100)+'%';
-        s.style.top = rand(0,100)+'%';
-        s.style.opacity = rand(0.3,0.95);
-        s.style.transform = `scale(${rand(0.6,1.6)})`;
-        starsEl.appendChild(s);
-      }
+canvas.addEventListener('mousedown', e=>{
+  isDragging=true;
+  dragStart={x:e.clientX-offsetX, y:e.clientY-offsetY};
+});
+canvas.addEventListener('mouseup', ()=>{ isDragging=false; });
+canvas.addEventListener('mousemove', e=>{
+  if(isDragging){
+    offsetX = e.clientX - dragStart.x;
+    offsetY = e.clientY - dragStart.y;
+  }
+  // tooltip hover
+  const tooltip = document.getElementById('tooltip');
+  let found=false;
+  capsules.forEach(c=>{
+    const dx = e.clientX - (c.x+offsetX+width/2);
+    const dy = e.clientY - (c.y+offsetY+height/2);
+    if(Math.sqrt(dx*dx+dy*dy)<c.size+4){
+      tooltip.style.display='block';
+      tooltip.style.left=(e.clientX+12)+'px';
+      tooltip.style.top=(e.clientY+12)+'px';
+      tooltip.innerHTML=`<strong>${c.title}</strong><br>${c.message}<br><em>${c.rank}</em>`;
+      found=true;
     }
-    createStars(110);
+  });
+  if(!found) tooltip.style.display='none';
+});
 
-    // meteor occasional
-    function shootMeteor(){
-      meteor.style.opacity = '1';
-      meteor.style.left = (Math.random()*80+5)+'%';
-      meteor.style.top = (Math.random()*30-10)+'%';
-      meteor.style.transform = 'rotate(35deg) translateX(0)';
-      meteor.style.transition = 'transform 1.1s linear, opacity 1.3s ease';
-      requestAnimationFrame(()=> {
-        meteor.style.transform = 'rotate(35deg) translateX(120vw)';
-        meteor.style.opacity = '0';
-      });
-      // next
-      setTimeout(()=> shootMeteor(), 4000 + Math.random()*8000);
-    }
-    setTimeout(shootMeteor, 2500);
-
-    /* ------- local storage capsules (demo) ------- */
-    const saveBtn = document.getElementById('saveBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const status = document.getElementById('status');
-    const container = document.getElementById('capsulesContainer');
-    const empty = document.getElementById('emptyMsg');
-
-    function loadCapsules(){
-      const arr = JSON.parse(localStorage.getItem('trox_capsules')||'[]');
-      container.innerHTML='';
-      if(arr.length===0){ empty.style.display='block'; return }
-      empty.style.display='none';
-      arr.reverse().forEach(c=>{
-        const el = document.createElement('div'); el.className='capsule';
-        el.innerHTML = `<h4>${escapeHtml(c.title||'كبسولة بدون عنوان')}</h4>
-                        <div class="small">المرسل: ${escapeHtml(c.name||'مجهول')} • ${escapeHtml(c.rank)} • ${escapeHtml(c.visibility)}</div>
-                        <p style="margin:8px 0 0;white-space:pre-wrap">${escapeHtml(c.message)}</p>`;
-        container.appendChild(el);
-      });
-    }
-
-    function escapeHtml(str){
-      if(!str) return '';
-      return str.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
-    }
-
-    saveBtn.addEventListener('click', ()=>{
-      const name = document.getElementById('name').value.trim();
-      const title = document.getElementById('title').value.trim();
-      const msg = document.getElementById('message').value.trim();
-      const rank = document.getElementById('rank').value;
-      const visibility = document.getElementById('visibility').value;
-      if(!msg){ status.style.display='block'; status.textContent='اكتب رسالة قبل الحفظ'; return }
-      const arr = JSON.parse(localStorage.getItem('trox_capsules')||'[]');
-      arr.push({name,title,message:msg,rank,visibility,ts:Date.now()});
-      localStorage.setItem('trox_capsules', JSON.stringify(arr));
-      status.style.display='block'; status.textContent='تم حفظ الكبسولة محليًا ✅';
-      setTimeout(()=>status.style.display='none',2200);
-      document.getElementById('message').value='';
-      document.getElementById('title').value='';
-      loadCapsules();
-    });
-
-    clearBtn.addEventListener('click', ()=>{
-      if(confirm('مسح كل الكبسولات المحفوظة محليًا؟')) {
-        localStorage.removeItem('trox_capsules');
-        loadCapsules();
-      }
-    });
-
-    // initial load
-    loadCapsules();
-  </script>
+// رسم الفضاء
+function draw(){
+  ctx.clearRect(0,0,width,height);
+  // نجوم
+  stars.forEach(s=>{
+    ctx.fillStyle = `rgba(255,255,255,${s.opacity})`;
+    ctx.beginPath();
+    ctx.arc(s.x+offsetX, s.y+offsetY, s.size,0,Math.PI*2);
+    ctx.fill();
+  });
+  // كبسولات
+  capsules.forEach(c=>{
+    let color="#00ccff";
+    if(c.rank==="special") color="#ffcc00";
+    if(c.rank==="legend") color="#ff4444";
+    ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.arc(c.x+offsetX+width/2, c.y+offsetY+height/2, c.size,0,Math.PI*2);
+    ctx.fill();
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+</script>
 </body>
 </html>
