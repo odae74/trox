@@ -1,110 +1,459 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>فضاء الكبسولات - تروكس الخالدة</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: radial-gradient(circle at center, #050505 0%, #000 100%);
-      perspective: 1200px;
-      font-family: 'Cairo', sans-serif;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Trox — فضاء الكبسولات</title>
 
-    .space {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      transform-style: preserve-3d;
-      transition: transform 0.4s ease;
-    }
+<style>
+  :root{
+    --bg:#03040a;
+    --accent:#00ccff;
+    --gold:#ffd166;
+    --glass: rgba(255,255,255,0.03);
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#01010a,#000);font-family:"Cairo",sans-serif;color:#eaf6ff;overflow:hidden}
+  #canvas-container{position:fixed;inset:0;background:transparent}
+  /* top UI */
+  #ui {
+    position:fixed; top:12px; left:12px; z-index:50;
+    display:flex; gap:8px; align-items:center;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.04);
+    backdrop-filter: blur(6px);
+  }
+  #ui .btn { background:var(--glass); border:1px solid rgba(255,255,255,0.04); color:var(--accent); padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:700 }
+  #ui .hint { color:#9fb0c7; font-size:0.9rem; margin-right:10px }
 
-    /* شكل الكبسولة السداسي */
-    .capsule {
-      position: absolute;
-      width: 140px;
-      height: 120px;
-      background: linear-gradient(145deg, #1c1c1c, #2b2b2b);
-      clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
-      border: 2px solid #555;
-      box-shadow: 0 0 25px rgba(0,0,0,0.8), inset 0 0 20px #111;
-      cursor: pointer;
-      transition: all 0.8s ease;
-    }
+  /* overlay message modal */
+  #messageOverlay {
+    position:fixed; right:50%; top:60%; transform:translate(50%,-50%);
+    z-index:60; min-width:320px; max-width:720px;
+    background:linear-gradient(180deg, rgba(0,0,10,0.9), rgba(0,0,8,0.85));
+    border:1px solid rgba(0,204,255,0.12); padding:18px; border-radius:12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7); display:none; color:#e9fbff;
+  }
+  #messageOverlay h3{margin:0 0 6px; color:var(--accent)}
+  #messageOverlay .meta{color:#9fb0c7; font-size:0.9rem; margin-bottom:10px}
+  #messageOverlay p{margin:0; line-height:1.6; white-space:pre-wrap}
+  #messageOverlay .closeBtn{margin-top:12px; background:var(--accent); color:#001; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:800}
 
-    /* التأثير عند المرور */
-    .capsule:hover {
-      transform: scale(1.05) rotateY(15deg);
-      box-shadow: 0 0 35px #888, inset 0 0 25px #666;
-    }
+  /* pointer lock instruction */
+  #plock {
+    position: fixed; left:50%; top:12px; transform:translateX(-50%); z-index:55;
+    background: rgba(0,0,0,0.35); padding:8px 12px; border-radius:8px; color:#cfeffd; border:1px solid rgba(255,255,255,0.03);
+    display:flex; gap:12px; align-items:center; font-weight:600;
+  }
 
-    /* عند الفتح */
-    .capsule.open {
-      background: linear-gradient(145deg, #444, #888);
-      box-shadow: 0 0 60px rgba(255, 255, 255, 0.8);
-      transform: scale(1.3) rotateY(180deg);
-    }
-
-    /* لمعان داخلي */
-    .capsule::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-
-    .capsule.open::before {
-      opacity: 1;
-      animation: energyGlow 3s infinite alternate;
-    }
-
-    @keyframes energyGlow {
-      0% { box-shadow: 0 0 15px rgba(0,255,255,0.2); }
-      100% { box-shadow: 0 0 35px rgba(0,255,255,0.6); }
-    }
-
-    /* تأثير حركة الفضاء */
-    @keyframes float {
-      0%, 100% { transform: translateY(0) rotateY(0deg); }
-      50% { transform: translateY(-10px) rotateY(10deg); }
-    }
-
-    .capsule {
-      animation: float 6s ease-in-out infinite;
-    }
-  </style>
+  /* bottom legend */
+  #legend {
+    position:fixed; left:12px; bottom:12px; z-index:50; color:#9fb0c7; font-size:0.9rem;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01)); padding:8px 10px; border-radius:8px;
+    border:1px solid rgba(255,255,255,0.02);
+  }
+</style>
 </head>
 <body>
-  <div class="space" id="space"></div>
 
-  <script>
-    const space = document.getElementById('space');
+<div id="canvas-container"></div>
 
-    // إنشاء كبسولات سداسية في مواقع عشوائية
-    for (let i = 0; i < 15; i++) {
-      const capsule = document.createElement('div');
-      capsule.className = 'capsule';
-      capsule.style.top = `${Math.random() * 90}vh`;
-      capsule.style.left = `${Math.random() * 90}vw`;
-      capsule.style.transform = `rotateY(${Math.random() * 360}deg)`;
-      space.appendChild(capsule);
+<!-- UI -->
+<div id="ui">
+  <div class="hint">اضغط داخل المشهد ثم استخدم W A S D للتحرك — اضغط ESC للخروج</div>
+  <button id="btnCreate" class="btn">🚀 أطلق كبسولتك</button>
+  <button id="btnAuth" class="btn">🔐 تسجيل / دخول</button>
+</div>
 
-      capsule.addEventListener('click', () => {
-        capsule.classList.add('open');
-        setTimeout(() => capsule.classList.remove('open'), 4000);
-      });
+<div id="plock">انقر داخل المشهد لتفعيل التحكم بالماوس (PointerLock)</div>
+
+<div id="messageOverlay" role="dialog" aria-modal="true">
+  <h3 id="mTitle">عنوان الكبسولة</h3>
+  <div class="meta" id="mMeta">المرسل • رتبة • التاريخ</div>
+  <p id="mBody">نص الكبسولة...</p>
+  <button class="closeBtn" onclick="hideOverlay()">إغلاق</button>
+</div>
+
+<div id="legend">نقطة: الكبسولات حقيقية مخزّنة في Firestore — تضغط لتقرأ، تُغلق تلقائيًا بعد 5 ثوانٍ.</div>
+
+<!-- Modules: three.js examples + firebase (module imports) -->
+<script type="module">
+/* ===========================
+   Imports
+   =========================== */
+import * as THREE from 'https://unpkg.com/three@0.154.0/build/three.module.js';
+import { PointerLockControls } from 'https://unpkg.com/three@0.154.0/examples/jsm/controls/PointerLockControls.js';
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+/* ===========================
+   Firebase config (استبدل إن لزم)
+   =========================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyCR8AiukqMEGOFDsjhv7tsFFFLDM5gWpu4",
+  authDomain: "trox-capsules.firebaseapp.com",
+  projectId: "trox-capsules",
+  storageBucket: "trox-capsules.firebasestorage.app",
+  messagingSenderId: "104606988275",
+  appId: "1:104606988275:web:24d2a719dd863357660486",
+  measurementId: "G-MEKWLRWGDS"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ===========================
+   Scene & renderer setup
+   =========================== */
+const container = document.getElementById('canvas-container');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha:true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+container.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+
+/* camera */
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 5000);
+camera.position.set(0, 2, 8);
+
+/* lights */
+const hemi = new THREE.HemisphereLight(0xffffff, 0x080820, 0.6);
+scene.add(hemi);
+const dir = new THREE.DirectionalLight(0xffffff, 0.6);
+dir.position.set(5,10,7);
+scene.add(dir);
+
+/* subtle ambient point for glow */
+const point = new THREE.PointLight(0x00ccff, 0.18, 60);
+scene.add(point);
+
+/* fog for depth */
+scene.fog = new THREE.FogExp2(0x000010, 0.003);
+
+/* starfield background (particles) */
+const starsGeo = new THREE.BufferGeometry();
+const starCount = 1500;
+const positions = new Float32Array(starCount * 3);
+for(let i=0;i<starCount;i++){
+  positions[i*3] = (Math.random()-0.5)*2000;
+  positions[i*3+1] = (Math.random()-0.5)*2000;
+  positions[i*3+2] = (Math.random()-0.5)*2000;
+}
+starsGeo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+const starsMat = new THREE.PointsMaterial({ color:0xbfefff, size:0.9, transparent:true, opacity:0.7 });
+const starPoints = new THREE.Points(starsGeo, starsMat);
+scene.add(starPoints);
+
+/* ===========================
+   Controls (PointerLock + WASD)
+   =========================== */
+const controls = new PointerLockControls(camera, renderer.domElement);
+let move = { forward:0, back:0, left:0, right:0, up:0, down:0 };
+const velocity = new THREE.Vector3();
+const dirVector = new THREE.Vector3();
+
+document.addEventListener('click', ()=> {
+  // request pointer lock when user clicks anywhere
+  if(document.pointerLockElement !== renderer.domElement){
+    controls.lock();
+  }
+});
+
+// show/hide instruction
+controls.addEventListener('lock', ()=> document.getElementById('plock').style.display='none');
+controls.addEventListener('unlock', ()=> document.getElementById('plock').style.display='flex');
+
+window.addEventListener('keydown', (e)=>{
+  if(e.code === 'KeyW') move.forward = 1;
+  if(e.code === 'KeyS') move.back = 1;
+  if(e.code === 'KeyA') move.left = 1;
+  if(e.code === 'KeyD') move.right = 1;
+  if(e.code === 'Space') move.up = 1;
+  if(e.code === 'ShiftLeft') move.down = 1;
+});
+window.addEventListener('keyup', (e)=>{
+  if(e.code === 'KeyW') move.forward = 0;
+  if(e.code === 'KeyS') move.back = 0;
+  if(e.code === 'KeyA') move.left = 0;
+  if(e.code === 'KeyD') move.right = 0;
+  if(e.code === 'Space') move.up = 0;
+  if(e.code === 'ShiftLeft') move.down = 0;
+});
+
+/* ===========================
+   Capsule construction
+   =========================== */
+/* We'll create a hexagonal prism by using CylinderGeometry with radialSegments = 6 */
+function createHexPrismMesh(colorHex, metallic=0.7, emissiveHex=0x000000){
+  const geometry = new THREE.CylinderGeometry(0.9, 0.9, 1.6, 6, 1, false);
+  // rotate so flat face points forward
+  geometry.rotateX(Math.PI/2);
+  const mat = new THREE.MeshStandardMaterial({
+    color: colorHex,
+    metalness: metallic,
+    roughness: 0.35,
+    emissive: emissiveHex,
+    emissiveIntensity: 0.6,
+    side: THREE.DoubleSide
+  });
+  const mesh = new THREE.Mesh(geometry, mat);
+  // rim edge highlight -> use Edges for slight outline
+  const edge = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), new THREE.LineBasicMaterial({ color:0x000000, linewidth:1, transparent:true, opacity:0.08 }));
+  const grp = new THREE.Group();
+  grp.add(mesh);
+  grp.add(edge);
+  return grp;
+}
+
+/* color mapping by rank */
+function rankColor(rank){
+  if(!rank) return {col:0x4444ff, emissive:0x002244}; // default blue
+  rank = rank.toString().toLowerCase();
+  if(rank.includes('legend') || rank.includes('خالدة') || rank.includes('legendary')) return {col:0xffd166, emissive:0x332200};
+  if(rank.includes('special') || rank.includes('خاصة')) return {col:0xb36aff, emissive:0x220033};
+  if(rank.includes('common') || rank.includes('عادية')) return {col:0x44b3ff, emissive:0x002233};
+  return {col:0x44b3ff, emissive:0x002233};
+}
+
+/* store capsules map: docId -> {mesh, data} */
+const capsulesMap = new Map();
+
+/* utility — place mesh at random positions within a large sphere region */
+function randomPosition(radius=200){
+  const u = Math.random();
+  const v = Math.random();
+  const theta = 2*Math.PI*u;
+  const phi = Math.acos(2*v-1);
+  const r = Math.cbrt(Math.random()) * radius; // bias toward center
+  const x = r * Math.sin(phi) * Math.cos(theta);
+  const y = r * Math.sin(phi) * Math.sin(theta);
+  const z = r * Math.cos(phi);
+  return new THREE.Vector3(x, y, z);
+}
+
+/* ===========================
+   Raycaster for clicks
+   =========================== */
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+function onClick(event){
+  // convert mouse to normalized device coords
+  mouse.x =  ( event.clientX / window.innerWidth ) * 2 - 1;
+  mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  // find intersections among capsule meshes
+  const objs = Array.from(capsulesMap.values()).map(e=>e.mesh);
+  const intersects = raycaster.intersectObjects(objs, true);
+  if(intersects.length>0){
+    // find parent group (capsule group)
+    let obj = intersects[0].object;
+    while(obj && !Array.from(capsulesMap.values()).some(v=>v.mesh === obj)) {
+      obj = obj.parent;
+      if(!obj) break;
     }
+    // fallback: use intersects[0].object.parent...
+    const found = Array.from(capsulesMap.entries()).find(([id,v]) => v.mesh === (obj || intersects[0].object.parent));
+    const entry = found ? found[1] : null;
+    if(entry){
+      openOverlay(entry);
+      triggerOpenAnimation(entry);
+    }
+  }
+}
+window.addEventListener('click', onClick);
 
-    // تحريك المشهد بالماوس بحرية
-    document.addEventListener('mousemove', (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 30;
-      const y = (e.clientY / window.innerHeight - 0.5) * 30;
-      space.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
-    });
-  </script>
+/* ===========================
+   Overlay handling
+   =========================== */
+const overlay = document.getElementById('messageOverlay');
+const mTitle = document.getElementById('mTitle');
+const mMeta = document.getElementById('mMeta');
+const mBody = document.getElementById('mBody');
+let overlayTimeout = null;
+function openOverlay(entry){
+  const d = entry.data;
+  mTitle.textContent = d.title || 'كبسولة خالدة';
+  const dateStr = d.ts ? new Date(d.ts).toLocaleString('ar-EG') : '';
+  mMeta.textContent = `${d.username||'مجهول'} • ${d.rank||'عادية'} • ${dateStr}`;
+  mBody.textContent = d.message || '';
+  overlay.style.display = 'block';
+  // auto close in 5s
+  if(overlayTimeout) clearTimeout(overlayTimeout);
+  overlayTimeout = setTimeout(()=> hideOverlay(), 5000);
+}
+function hideOverlay(){
+  overlay.style.display = 'none';
+}
+
+/* ===========================
+   Open animation
+   =========================== */
+function triggerOpenAnimation(entry){
+  const grp = entry.mesh;
+  // scale up and set emissive
+  entry.isOpen = true;
+  // animate via simple GSAP-like tween (manual)
+  const start = performance.now();
+  const duration = 400;
+  const initialScale = grp.scale.x;
+  const targetScale = 1.5;
+  function animateOpen(t){
+    const p = Math.min(1, (t-start)/duration);
+    const s = initialScale + (targetScale - initialScale) * easeOutCubic(p);
+    grp.scale.set(s,s,s);
+    // emissive brighten
+    if(entry.mat) entry.mat.emissiveIntensity = 0.6 * p;
+    if(p<1) requestAnimationFrame(animateOpen);
+    else {
+      // after a while close
+      setTimeout(()=> triggerCloseAnimation(entry), 2500);
+    }
+  }
+  requestAnimationFrame(animateOpen);
+}
+function triggerCloseAnimation(entry){
+  const grp = entry.mesh;
+  entry.isOpen = false;
+  const start = performance.now();
+  const duration = 500;
+  const initialScale = grp.scale.x;
+  const targetScale = 1.0;
+  function animateClose(t){
+    const p = Math.min(1, (t-start)/duration);
+    const s = initialScale + (targetScale - initialScale) * easeOutCubic(p);
+    grp.scale.set(s,s,s);
+    if(entry.mat) entry.mat.emissiveIntensity = 0.6 * (1-p);
+    if(p<1) requestAnimationFrame(animateClose);
+  }
+  requestAnimationFrame(animateClose);
+}
+function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+
+/* ===========================
+   Add / update Firestore listener (realtime)
+   =========================== */
+const capsulesCollection = collection(db, 'capsules');
+const q = query(capsulesCollection, orderBy('ts','desc'));
+
+onSnapshot(q, (snap) => {
+  snap.docChanges().forEach(change => {
+    const id = change.doc.id;
+    const data = change.doc.data();
+    // normalize timestamp (if firestore timestamp object)
+    if(data.ts && data.ts.seconds) data.ts = data.ts.seconds * 1000;
+    if(change.type === 'added'){
+      addCapsuleToScene(id, data);
+    } else if(change.type === 'modified'){
+      updateCapsuleInScene(id, data);
+    } else if(change.type === 'removed'){
+      removeCapsuleFromScene(id);
+    }
+  });
+});
+
+/* helper functions for scene management */
+function addCapsuleToScene(id, data){
+  // create mesh (color by rank)
+  const rc = rankColor(data.rank || data.rank);
+  const { col, emissive } = rankColor(data.rank || '');
+  const hex = createHexPrismMesh(col, 0.8, emissive);
+  const mesh = hex;
+  // scale & orientation
+  mesh.position.copy(randomPosition(260));
+  mesh.scale.set(1.0 + Math.random()*0.6, 1.0 + Math.random()*0.6, 1.0 + Math.random()*0.6);
+  mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+  scene.add(mesh);
+
+  // store entry
+  // try to reference material for animation (mesh.children[0] is actual mesh)
+  const mat = mesh.children[0] && mesh.children[0].material ? mesh.children[0].material : null;
+  capsulesMap.set(id, { id, mesh, data, mat, isOpen:false });
+}
+
+function updateCapsuleInScene(id, data){
+  const entry = capsulesMap.get(id);
+  if(!entry) { addCapsuleToScene(id, data); return; }
+  entry.data = data;
+  // optionally update appearance if rank changed
+  if(entry.mat && data.rank){
+    const rc = rankColor(data.rank);
+    entry.mat.color.set(rc.col);
+    entry.mat.emissive.set(rc.emissive);
+  }
+}
+
+function removeCapsuleFromScene(id){
+  const entry = capsulesMap.get(id);
+  if(!entry) return;
+  scene.remove(entry.mesh);
+  capsulesMap.delete(id);
+}
+
+/* ===========================
+   Animation loop
+   =========================== */
+let prevTime = performance.now();
+function animate(){
+  requestAnimationFrame(animate);
+  const time = performance.now();
+  const delta = (time - prevTime)/1000;
+  prevTime = time;
+
+  // move according to controls flags
+  const speed = 20;
+  // compute direction from controls
+  dirVector.set( (move.right - move.left), (move.up - move.down), (move.back - move.forward) ).normalize();
+  // apply relative to camera orientation
+  if(controls.isLocked){
+    // forward/back in camera space
+    const forward = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
+    const right = new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion);
+    const upv = new THREE.Vector3(0,1,0);
+    velocity.set(0,0,0);
+    if(move.forward) velocity.add(forward);
+    if(move.back) velocity.add(forward.clone().negate());
+    if(move.left) velocity.add(right.clone().negate());
+    if(move.right) velocity.add(right);
+    if(move.up) velocity.add(upv);
+    if(move.down) velocity.add(upv.clone().negate());
+    if(velocity.lengthSq()>0) {
+      velocity.normalize();
+      camera.position.addScaledVector(velocity, speed * delta);
+    }
+  }
+
+  // subtle star field rotation
+  starPoints.rotation.y += 0.0006;
+
+  // animate simple floating for each capsule (slow orbit)
+  capsulesMap.forEach(entry => {
+    entry.mesh.rotation.y += 0.0006 * (1 + (entry.mesh.scale.x-1)*0.6);
+    // gentle bob
+    entry.mesh.position.y += Math.sin((time/1000 + entry.mesh.position.x)*0.1) * 0.0008;
+  });
+
+  renderer.render(scene, camera);
+}
+animate();
+
+/* ===========================
+   Helpers: UI buttons
+   =========================== */
+document.getElementById('btnCreate').addEventListener('click', () => location.href='كبسولة.html');
+document.getElementById('btnAuth').addEventListener('click', () => location.href='auth.html');
+
+/* resize handling */
+window.addEventListener('resize', ()=> {
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+/* ===========================
+   Utility: ease & random helpers (kept near)
+   =========================== */
+function randRange(a,b){ return a + Math.random()*(b-a); }
+
+</script>
 </body>
 </html>
