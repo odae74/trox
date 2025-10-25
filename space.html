@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trox – الفضاء</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo&display=swap">
+<style>
+  body {
+    margin:0;
+    overflow:hidden;
+    background:#000010;
+    font-family:'Cairo', sans-serif;
+    color:#fff;
+  }
+  /* Floating Capsules */
+  .capsule {
+    position:absolute;
+    width:100px;
+    height:50px;
+    background: linear-gradient(135deg, #444, #222);
+    border-radius:25px;
+    border:2px solid #00ccff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow: 0 0 15px rgba(0,204,255,0.5);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .capsule:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 25px rgba(0,255,255,0.8);
+  }
+  /* Capsule content modal */
+  #capsuleModal {
+    position:fixed;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(0,0,20,0.95);
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 0 30px #00ccff;
+    display:none;
+    max-width:400px;
+    z-index:100;
+  }
+  #capsuleModal h4 { margin:0 0 5px; color:#00ccff;}
+  #capsuleModal p { margin:0; white-space:pre-wrap; }
+  #closeModal {
+    margin-top:12px;
+    padding:6px 12px;
+    border:none;
+    background:#00ccff;
+    color:#000;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  /* Navbar */
+  #navbar {
+    position:fixed;
+    top:10px;
+    right:10px;
+    display:flex;
+    gap:12px;
+    z-index:101;
+  }
+  .btn-nav {
+    padding:8px 14px;
+    border-radius:8px;
+    border:none;
+    background:#00ccff;
+    color:#000;
+    cursor:pointer;
+    font-weight:bold;
+  }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div id="navbar">
+  <button class="btn-nav" onclick="window.location.href='auth.html'">سجل / تسجيل الدخول</button>
+  <button class="btn-nav" onclick="openNewCapsule()">أطلق كبسولتك</button>
+</div>
+
+<!-- Capsule Modal -->
+<div id="capsuleModal">
+  <h4 id="capTitle"></h4>
+  <div class="small" id="capInfo"></div>
+  <p id="capMessage"></p>
+  <button id="closeModal">أغلق</button>
+</div>
+
+<script>
+const capsulesData = [
+  {title:"كبسولة1", message:"هذه تجربة للكبسولة الأولى", rank:"خالدة", x:100, y:200},
+  {title:"كبسولة2", message:"تجربة الثانية", rank:"عادية", x:400, y:300},
+  {title:"كبسولة3", message:"رسالة تجريبية", rank:"خاصة", x:700, y:150},
+];
+
+// إنشاء الكبسولات
+capsulesData.forEach((cap,i)=>{
+  const div = document.createElement('div');
+  div.className='capsule';
+  div.style.left=cap.x+'px';
+  div.style.top=cap.y+'px';
+  div.textContent='💠';
+  div.onclick=()=>openCapsule(cap);
+  document.body.appendChild(div);
+});
+
+// حركة عشوائية بسيطة
+function animateCapsules(){
+  document.querySelectorAll('.capsule').forEach(el=>{
+    let x = parseFloat(el.style.left);
+    let y = parseFloat(el.style.top);
+    x += (Math.random()-0.5)*2;
+    y += (Math.random()-0.5)*2;
+    el.style.left = x+'px';
+    el.style.top = y+'px';
+  });
+  requestAnimationFrame(animateCapsules);
+}
+animateCapsules();
+
+// فتح الكبسولة
+function openCapsule(cap){
+  document.getElementById('capTitle').textContent = cap.title;
+  document.getElementById('capMessage').textContent = cap.message;
+  document.getElementById('capInfo').textContent = 'رتبة: '+cap.rank;
+  document.getElementById('capsuleModal').style.display='block';
+}
+document.getElementById('closeModal').onclick=()=>{
+  document.getElementById('capsuleModal').style.display='none';
+}
+
+// إطلاق كبسولة جديدة (تجريبي)
+function openNewCapsule(){
+  alert('نافذة إنشاء كبسولة جديدة ستظهر هنا مع Firebase لاحقاً');
+}
+</script>
+
+</body>
+</html>
