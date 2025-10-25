@@ -1,123 +1,51 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trox – كبسولات الفضاء 🌌</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>إنشاء كبسولة جديدة - Trox</title>
   <style>
     body {
-      margin: 0;
-      font-family: "Tajawal", sans-serif;
-      background: radial-gradient(circle at center, #000010 0%, #000015 100%);
-      overflow: hidden;
-      color: white;
+      margin: 0; font-family: "Cairo", sans-serif;
+      background: radial-gradient(ellipse at center, #000010 0%, #000020 100%);
+      color: #fff; text-align: center; padding: 40px;
     }
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 0;
+    h1 { color: #00ccff; }
+    input, textarea {
+      width: 90%; max-width: 400px;
+      padding: 10px; margin: 10px 0;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; background: rgba(255,255,255,0.05);
+      color: #fff;
     }
-    .capsules {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      padding: 40px;
-      gap: 20px;
+    button {
+      background: #00ccff; color: #000; border: none;
+      padding: 10px 20px; border-radius: 999px; font-weight: bold;
+      cursor: pointer; transition: 0.3s;
     }
-    .capsule {
-      background: rgba(255,255,255,0.08);
-      padding: 20px;
-      border-radius: 20px;
-      width: 250px;
-      box-shadow: 0 0 10px rgba(0,200,255,0.3);
-      backdrop-filter: blur(6px);
-      transition: 0.3s;
-    }
-    .capsule:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(0,255,255,0.5);
-    }
-    h2 {
-      color: #00ccff;
-      font-size: 1.2em;
-    }
-    p {
-      color: #ddd;
-      font-size: 0.9em;
-    }
-    .author {
-      font-size: 0.8em;
-      color: #888;
-      margin-top: 10px;
-    }
-    a {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      color: #00ccff;
-      text-decoration: none;
-      z-index: 2;
-    }
+    button:hover { background: #00aadd; }
+    a { color: #00ccff; text-decoration: none; display:block; margin-top:20px; }
   </style>
 </head>
 <body>
-  <a href="index.html">← العودة لإنشاء كبسولة</a>
-  <canvas id="stars"></canvas>
-  <div class="capsules" id="capsulesContainer"></div>
+  <h1>✦ إنشاء كبسولة جديدة ✦</h1>
+  <input id="title" placeholder="عنوان الكبسولة" />
+  <textarea id="message" placeholder="اكتب رسالتك هنا..."></textarea>
+  <button id="save">احفظ الكبسولة</button>
+  <a href="index.html">⬅️ عودة للفضاء</a>
 
   <script>
-    // خلفية النجوم
-    const canvas = document.getElementById('stars');
-    const ctx = canvas.getContext('2d');
-    let stars = [];
-
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.onresize = resize;
-    resize();
-
-    for (let i = 0; i < 200; i++) {
-      stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 1.5,
-        s: Math.random() * 0.5,
-      });
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = 'white';
-      stars.forEach(star => {
-        star.y += star.s;
-        if (star.y > canvas.height) star.y = 0;
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      requestAnimationFrame(animate);
-    }
-    animate();
-
-    // عرض الكبسولات
-    const container = document.getElementById('capsulesContainer');
-    const capsules = JSON.parse(localStorage.getItem('capsules') || '[]');
-    capsules.reverse().forEach(c => {
-      if (c.visibility === "private") return;
-      const el = document.createElement('div');
-      el.className = 'capsule';
-      el.innerHTML = `
-        <h2>${c.title}</h2>
-        <p>${c.message}</p>
-        <div class="author">✍️ ${c.name} • ${c.date}</div>
-      `;
-      container.appendChild(el);
-    });
+    const btn = document.getElementById('save');
+    btn.onclick = ()=>{
+      const title = document.getElementById('title').value.trim();
+      const message = document.getElementById('message').value.trim();
+      if(!message){ alert("اكتب رسالة أولاً 🌌"); return; }
+      const arr = JSON.parse(localStorage.getItem("trox_public") || "[]");
+      arr.push({title, message, time: Date.now()});
+      localStorage.setItem("trox_public", JSON.stringify(arr));
+      alert("🚀 تم حفظ الكبسولة! ستظهر للجميع على الصفحة الرئيسية");
+      location.href = "index.html";
+    };
   </script>
 </body>
 </html>
