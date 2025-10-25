@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚡ كبسولة تروكس الخالدة ⚡</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+      font-family: "Cairo", sans-serif;
+      color: white;
+    }
+
+    .halo-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, rgba(58,0,94,1) 0%, rgba(0,0,0,1) 80%);
+      animation: fadeOut 3s ease 5s forwards;
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; visibility: hidden; }
+    }
+
+    .halo-text {
+      font-size: 2.5rem;
+      text-align: center;
+      color: #e0d3ff;
+      text-shadow: 0 0 20px #b77cff, 0 0 40px #8a5bff;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #b77cff; }
+      to { text-shadow: 0 0 30px #8a5bff, 0 0 50px #6b3fff; }
+    }
+
+    .enter-space {
+      display: none;
+      opacity: 0;
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 30px;
+      background: linear-gradient(45deg, #7a3cff, #a070ff);
+      border: none;
+      border-radius: 30px;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 0 20px #7a3cff;
+      transition: all 0.3s ease;
+    }
+
+    .enter-space:hover {
+      background: linear-gradient(45deg, #9b60ff, #c09eff);
+      box-shadow: 0 0 30px #c09eff;
+    }
+
+    .show-button {
+      display: block;
+      animation: fadeIn 2s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="halo-container" id="halo">
+    <div class="halo-text">⚡ كبسولة تروكس الخالدة ⚡<br>استعد للانطلاق عبر الزمن...</div>
+  </div>
+
+  <button id="enterSpace" class="enter-space">🚀 دخول الفضاء</button>
+
+  <script>
+    // بعد انتهاء عرض الهالة، أظهر زر الدخول
+    setTimeout(() => {
+      const button = document.getElementById("enterSpace");
+      button.classList.add("show-button");
+      button.style.opacity = "1";
+    }, 5000);
+
+    // عند الضغط على الزر، انتقل لصفحة الفضاء
+    document.getElementById("enterSpace").addEventListener("click", () => {
+      window.location.href = "space.html";
+    });
+  </script>
+</body>
+</html>
