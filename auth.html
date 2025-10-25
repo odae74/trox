@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trox – تسجيل الدخول</title>
+<style>
+body {
+  margin:0; height:100vh;
+  display:flex; justify-content:center; align-items:center;
+  font-family:'Cairo', sans-serif;
+  background: radial-gradient(circle, #000010, #000030);
+  color:#fff;
+}
+form {
+  background: rgba(0,0,20,0.9);
+  padding:24px; border-radius:12px;
+  display:flex; flex-direction:column; gap:12px;
+  box-shadow:0 0 20px #00ccff;
+}
+input {padding:8px; border-radius:6px; border:none; width:220px;}
+button {padding:8px; border-radius:6px; border:none; background:#00ccff; color:#000; cursor:pointer;}
+</style>
+</head>
+<body>
+<form id="authForm">
+  <h3>تسجيل / تسجيل الدخول</h3>
+  <input id="email" type="email" placeholder="بريدك الإلكتروني" required>
+  <input id="password" type="password" placeholder="كلمة المرور" required>
+  <button type="submit">تسجيل الدخول / إنشاء حساب</button>
+</form>
+
+<script type="module">
+  // Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCR8AiukqMEGOFDsjhv7tsFFFLDM5gWpu4",
+    authDomain: "trox-capsules.firebaseapp.com",
+    projectId: "trox-capsules",
+    storageBucket: "trox-capsules.appspot.com",
+    messagingSenderId: "104606988275",
+    appId: "1:104606988275:web:24d2a719dd863357660486"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  document.getElementById('authForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+    createUserWithEmailAndPassword(auth,email,pass)
+      .then(()=> window.location.href='space.html')
+      .catch(()=> signInWithEmailAndPassword(auth,email,pass)
+        .then(()=> window.location.href='space.html')
+        .catch(err=> alert(err.message))
+      );
+  });
+</script>
+</body>
+</html>
