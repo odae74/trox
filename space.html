@@ -1,151 +1,97 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>فضاء تروكس 🪐</title>
-<style>
-  body {
-    margin: 0;
-    overflow: hidden;
-    background: radial-gradient(circle at center, #050014 0%, #000000 90%);
-    font-family: "Cairo", sans-serif;
-    color: white;
-  }
-  .navbar {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 30px;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    z-index: 10;
-  }
-  .navbar h1 { color: #c5a7ff; }
-  .navbar a {
-    color: #fff;
-    text-decoration: none;
-    margin-left: 15px;
-    transition: 0.3s;
-  }
-  .navbar a:hover { color: #9f7cff; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الفضاء - كبسولات تروكس</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+      perspective: 1200px;
+      font-family: 'Cairo', sans-serif;
+    }
 
-  .space {
-    width: 100vw; height: 100vh;
-    position: relative;
-    overflow: hidden;
-  }
+    .space {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease;
+    }
 
-  .capsule {
-    position: absolute;
-    width: 130px; height: 130px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #2a0066, #5e3fff);
-    box-shadow: 0 0 40px rgba(120, 80, 255, 0.6);
-    transition: transform 1s, box-shadow 1s;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .capsule::before {
-    content: "";
-    position: absolute;
-    width: 110%;
-    height: 110%;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.1);
-    animation: rotateRing 8s linear infinite;
-  }
-  @keyframes rotateRing {
-    from { transform: rotate(0); }
-    to { transform: rotate(360deg); }
-  }
-  .capsule.opened {
-    background: radial-gradient(circle, #ffd700 0%, #ff9900 100%);
-    box-shadow: 0 0 100px rgba(255, 200, 80, 0.9);
-    transform: scale(1.3);
-  }
-  .capsule-content {
-    position: absolute;
-    top: 140px;
-    background: rgba(0, 0, 0, 0.75);
-    border: 1px solid #b38aff;
-    padding: 10px;
-    border-radius: 10px;
-    display: none;
-    width: 200px;
-    text-align: center;
-  }
+    .capsule {
+      position: absolute;
+      width: 120px;
+      height: 100px;
+      background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+      clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+      border: 2px solid #444;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.8), inset 0 0 20px #111;
+      cursor: pointer;
+      transition: all 0.6s ease;
+    }
 
-  .stars {
-    position: absolute;
-    width: 2px; height: 2px;
-    background: white;
-    opacity: 0.5;
-    animation: twinkle 3s infinite ease-in-out;
-  }
-  @keyframes twinkle {
-    0%,100% { opacity: 0.2; }
-    50% { opacity: 1; }
-  }
-</style>
+    .capsule:hover {
+      box-shadow: 0 0 35px #888, inset 0 0 15px #555;
+      transform: scale(1.05);
+    }
+
+    .capsule.open {
+      background: linear-gradient(145deg, #444, #999);
+      box-shadow: 0 0 60px rgba(255, 255, 255, 0.6);
+      transform: scale(1.2) rotateY(180deg);
+    }
+
+    .capsule::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 80%);
+      transition: opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    .capsule.open::after {
+      opacity: 1;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+      50% { box-shadow: 0 0 50px rgba(255,255,255,0.8); }
+    }
+  </style>
 </head>
 <body>
-  <div class="navbar">
-    <h1>⚡ كبسولات تروكس</h1>
-    <div>
-      <a href="auth.html">تسجيل / دخول</a>
-      <a href="capsule.html">أطلق كبسولتك 🚀</a>
-    </div>
-  </div>
-
   <div class="space" id="space"></div>
 
   <script>
-    const space = document.getElementById("space");
+    const space = document.getElementById('space');
 
-    // إنشاء نجوم
-    for (let i = 0; i < 120; i++) {
-      const star = document.createElement("div");
-      star.className = "stars";
-      star.style.top = Math.random() * 100 + "vh";
-      star.style.left = Math.random() * 100 + "vw";
-      star.style.animationDuration = (2 + Math.random() * 3) + "s";
-      space.appendChild(star);
-    }
-
-    // رسائل مؤقتة
-    const messages = [
-      "أطلق طاقتك عبر الزمن 🚀",
-      "رسالة خالدة تنتظرك 🌌",
-      "Trox — حيث تلتقي الأرواح عبر الأكوان",
-      "احلم، دوّن، وأطلق كبسولتك"
-    ];
-
-    // كبسولات
-    for (let i = 0; i < 6; i++) {
-      const capsule = document.createElement("div");
-      capsule.className = "capsule";
-      capsule.style.top = Math.random() * 80 + "vh";
-      capsule.style.left = Math.random() * 80 + "vw";
-      const msg = document.createElement("div");
-      msg.className = "capsule-content";
-      msg.textContent = messages[i % messages.length];
-      capsule.appendChild(msg);
-      capsule.onclick = () => {
-        capsule.classList.add("opened");
-        msg.style.display = "block";
-        setTimeout(() => {
-          capsule.classList.remove("opened");
-          msg.style.display = "none";
-        }, 3500); // يغلق تلقائيًا بعد 3.5 ثواني
-      };
+    // إنشاء كبسولات عشوائية
+    for (let i = 0; i < 15; i++) {
+      const capsule = document.createElement('div');
+      capsule.className = 'capsule';
+      capsule.style.top = `${Math.random() * 90}vh`;
+      capsule.style.left = `${Math.random() * 90}vw`;
+      capsule.style.transform = `rotateY(${Math.random() * 360}deg)`;
       space.appendChild(capsule);
+
+      capsule.addEventListener('click', () => {
+        capsule.classList.add('open');
+        setTimeout(() => capsule.classList.remove('open'), 4000);
+      });
     }
+
+    // حركة الفضاء بالماوس
+    document.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      space.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+    });
   </script>
 </body>
 </html>
