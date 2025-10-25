@@ -1,113 +1,109 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trox Capsule - أنشئ كبسولتك</title>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trox – الكبسولة الخالدة 🚀</title>
+<style>
+:root {
+  --accent: #00ccff;
+  --bg1: #000010;
+  --bg2: #0b1020;
+}
+body {
+  margin: 0;
+  font-family: "Cairo", sans-serif;
+  background: radial-gradient(ellipse at center,var(--bg1) 0%,var(--bg2) 100%);
+  color: #fff;
+  overflow-x: hidden;
+}
+.wrap{
+  display:flex; flex-direction:column; align-items:center; padding:20px;
+}
+h1{color:var(--accent);}
+input, textarea, select{
+  width:100%; padding:10px; margin-top:6px; border-radius:8px; border:none; background:rgba(255,255,255,0.05); color:#fff;
+}
+button{
+  padding:10px 20px; border-radius:50px; border:none; background:var(--accent); color:#000; font-weight:bold; cursor:pointer; margin-top:10px;
+  transition:0.3s;
+}
+button:hover{background:#00aadd;}
+.capsules{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin-top:20px;}
+.capsule{background:rgba(255,255,255,0.02); padding:12px; border-radius:12px; backdrop-filter:blur(6px);}
+.capsule h4{color:var(--accent); margin:0 0 6px;}
+.capsule p{margin:4px 0 0; white-space:pre-wrap;}
+</style>
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCR8AiukqMEGOFDsjhv7tsFFFLDM5gWpu4",
-      authDomain: "trox-capsules.firebaseapp.com",
-      projectId: "trox-capsules",
-      storageBucket: "trox-capsules.firebasestorage.app",
-      messagingSenderId: "104606988275",
-      appId: "1:104606988275:web:24d2a719dd863357660486",
-      measurementId: "G-MEKWLRWGDS"
-    };
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCR8AiukqMEGOFDsjhv7tsFFFLDM5gWpu4",
+  authDomain: "trox-capsules.firebaseapp.com",
+  projectId: "trox-capsules",
+  storageBucket: "trox-capsules.appspot.com",
+  messagingSenderId: "104606988275",
+  appId: "1:104606988275:web:24d2a719dd863357660486",
+  measurementId: "G-MEKWLRWGDS"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    async function saveCapsule() {
-      const name = document.getElementById("name").value || "مجهول";
-      const title = document.getElementById("title").value || "بدون عنوان";
-      const message = document.getElementById("message").value;
+window.addEventListener('DOMContentLoaded', ()=>{
+  const container = document.getElementById('capsulesContainer');
+  const formBtn = document.getElementById('saveBtn');
+  const usernameInput = document.getElementById('username');
+  const titleInput = document.getElementById('title');
+  const messageInput = document.getElementById('message');
 
-      if (!message.trim()) {
-        alert("📝 الرجاء كتابة رسالة أولاً!");
-        return;
-      }
+  // Save capsule
+  formBtn.addEventListener('click', async ()=>{
+    const username = usernameInput.value.trim() || "مجهول";
+    const title = titleInput.value.trim() || "كبسولة بدون عنوان";
+    const message = messageInput.value.trim();
+    if(!message){ alert("اكتب رسالة قبل الحفظ"); return; }
+    await addDoc(collection(db,'capsules'), {username, title, message, timestamp: new Date()});
+    usernameInput.value=''; titleInput.value=''; messageInput.value='';
+    loadCapsules();
+  });
 
-      await addDoc(collection(db, "capsules"), {
-        name,
-        title,
-        message,
-        timestamp: new Date()
-      });
+  // Load capsules
+  async function loadCapsules(){
+    container.innerHTML='';
+    const q = query(collection(db,'capsules'), orderBy('timestamp','desc'));
+    const snapshot = await getDocs(q);
+    if(snapshot.empty){ container.innerHTML='<p>لا توجد كبسولات حتى الآن.</p>'; return; }
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      const div = document.createElement('div');
+      div.className='capsule';
+      div.innerHTML=`<h4>${data.title}</h4>
+                     <small>المرسل: ${data.username}</small>
+                     <p>${data.message}</p>`;
+      container.appendChild(div);
+    });
+  }
 
-      alert("✅ تم حفظ كبسولتك للعالم!");
-      document.getElementById("name").value = "";
-      document.getElementById("title").value = "";
-      document.getElementById("message").value = "";
-    }
-
-    window.saveCapsule = saveCapsule;
-  </script>
-
-  <style>
-    body {
-      font-family: 'Tajawal', sans-serif;
-      background: radial-gradient(circle at top, #0f172a, #020617);
-      color: #fff;
-      text-align: center;
-      padding: 50px 10px;
-    }
-
-    h1 {
-      font-size: 2em;
-      margin-bottom: 10px;
-      color: #38bdf8;
-    }
-
-    textarea, input {
-      width: 90%;
-      max-width: 500px;
-      margin: 8px auto;
-      padding: 10px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-    }
-
-    button {
-      background: #38bdf8;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 25px;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: all 0.3s ease;
-    }
-
-    button:hover {
-      transform: scale(1.05);
-      background: #7dd3fc;
-    }
-
-    .link {
-      display: block;
-      margin-top: 30px;
-      color: #38bdf8;
-      text-decoration: none;
-      font-weight: bold;
-    }
-  </style>
+  loadCapsules();
+});
+</script>
 </head>
 <body>
-  <h1>⚡ Trox - الكبسولة الخالدة ⚡</h1>
-  <p>اكتب رسالة، وشارك لحظة خالدة مع العالم 🌍</p>
-
-  <input type="text" id="name" placeholder="اسمك (اختياري)">
-  <input type="text" id="title" placeholder="عنوان الكبسولة">
-  <textarea id="message" placeholder="اكتب رسالتك هنا..." rows="6"></textarea>
-
-  <button onclick="saveCapsule()">💫 احفظ كبسولتك</button>
-
-  <a href="explore.html" class="link">🚀 استكشاف الكبسولات</a>
+<div class="wrap">
+  <h1>⚡ Trox – الكبسولة الخالدة ⚡</h1>
+  <p>اكتب رسالة، احفظها كبسولة رقمية، وشارك لحظة خالدة مع العالم.</p>
+  <section id="form">
+    <input id="username" placeholder="اسمك (اختياري)">
+    <input id="title" placeholder="عنوان للكبسولة">
+    <textarea id="message" placeholder="اكتب رسالتك هنا..."></textarea>
+    <button id="saveBtn">احفظ الكبسولة 🚀</button>
+  </section>
+  <section class="capsules" id="capsulesContainer"></section>
+</div>
 </body>
 </html>
