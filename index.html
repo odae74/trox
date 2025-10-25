@@ -3,166 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>⚡ Trox - الكبسولة الخالدة ⚡</title>
+  <title>📩 كبسولتك - Trox</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      scroll-behavior: smooth;
-    }
     body {
       font-family: 'Tajawal', sans-serif;
-      background: radial-gradient(circle at 50% 20%, #0f0f24, #050510 80%);
+      background: radial-gradient(circle at 50% 30%, #101030, #050515 80%);
       color: #fff;
-      overflow-x: hidden;
-    }
-
-    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
       text-align: center;
-      padding: 3rem 1rem;
-      background: linear-gradient(135deg, #202060, #100030);
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    header h1 {
-      font-size: 2.5rem;
-      letter-spacing: 2px;
-    }
-    header p {
-      color: #ccc;
-      margin-top: 0.5rem;
-    }
-
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.5rem;
-      padding: 3rem 2rem;
-      perspective: 1000px;
-    }
-
-    .capsule {
-      background: linear-gradient(145deg, #1a1a3a, #111);
-      border-radius: 20px;
       padding: 2rem;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      transform-style: preserve-3d;
-      transition: all 0.5s ease;
-      cursor: pointer;
-      position: relative;
+      overflow: hidden;
     }
 
-    .capsule:hover {
-      transform: translateY(-10px) rotateY(10deg);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    .capsule-box {
+      background: linear-gradient(145deg, #1a1a3a, #111);
+      padding: 2.5rem;
+      border-radius: 30px;
+      box-shadow: 0 0 50px rgba(0,0,0,0.6);
+      width: min(90%, 600px);
+      animation: float 4s ease-in-out infinite;
     }
 
-    .capsule h3 {
-      margin-bottom: 1rem;
-      font-size: 1.4rem;
-      color: #9cf;
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
 
-    .capsule p {
-      font-size: 1rem;
-      color: #ccc;
-    }
+    h1 { font-size: 2rem; color: #9cf; margin-bottom: 1.5rem; }
+    p { font-size: 1.2rem; color: #ddd; line-height: 1.7; white-space: pre-line; }
 
-    .create-btn {
-      display: block;
-      margin: 3rem auto;
+    .back-btn {
+      margin-top: 2.5rem;
       background: #007bff;
       color: white;
-      padding: 1rem 2rem;
+      padding: 0.8rem 1.8rem;
       border: none;
-      border-radius: 50px;
-      font-size: 1.3rem;
+      border-radius: 30px;
+      font-size: 1.1rem;
       cursor: pointer;
       transition: 0.3s;
-      box-shadow: 0 5px 15px rgba(0,0,255,0.3);
     }
-
-    .create-btn:hover {
-      background: #0056b3;
-      transform: scale(1.05);
-    }
+    .back-btn:hover { background: #0056b3; transform: scale(1.05); }
 
     footer {
-      text-align: center;
-      padding: 2rem;
-      color: #aaa;
-      background: #0a0a1a;
+      margin-top: 3rem;
+      color: #999;
       font-size: 0.9rem;
     }
-
-    /* حركة سلسة عند الظهور */
-    .fade-in {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-
-    .fade-in.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
   </style>
 </head>
 <body>
-  <header>
-    <h1>⚡ Trox - الكبسولة الخالدة ⚡</h1>
-    <p>ارسل رسالتك إلى المستقبل، واحتفظ بذكراك الرقمية إلى الأبد.</p>
-  </header>
+  <div class="capsule-box" id="capsuleBox">
+    <h1>تحميل الكبسولة...</h1>
+    <p></p>
+  </div>
 
-  <button class="create-btn" onclick="addCapsule()">🪐 إنشاء كبسولة جديدة</button>
-
-  <section class="container" id="capsules">
-    <!-- سيتم ملء الكبسولات هنا -->
-  </section>
-
-  <footer>
-    🌌 مشروع تجريبي من Trox © 2025 — النسخة التجريبية الأولى
-  </footer>
+  <button class="back-btn" onclick="goBack()">🔙 العودة إلى الصفحة الرئيسية</button>
+  <footer>© 2025 Trox Capsule</footer>
 
   <script>
-    const capsulesContainer = document.getElementById('capsules');
-    const sampleCapsules = [
-      { title: "رسالة من الغد 🌅", text: "تذكر أنك كنت قويًا يومًا ما، وستكون أقوى غدًا." },
-      { title: "لنفسي في 2035 🕊️", text: "هل حققت حلمك؟ لا تنسَ أن الطريق كان جميلًا." },
-      { title: "ذكريات 2025 🪞", text: "أول موقع أنشأته... الكبسولة الخالدة 💎." },
-      { title: "كبسولة الغياب 🕯️", text: "إلى من رحلوا وبقوا في الذاكرة إلى الأبد." },
-    ];
-
-    function renderCapsules() {
-      capsulesContainer.innerHTML = '';
-      sampleCapsules.forEach((capsule, index) => {
-        const div = document.createElement('div');
-        div.className = 'capsule fade-in';
-        div.innerHTML = `<h3>${capsule.title}</h3><p>${capsule.text}</p>`;
-        capsulesContainer.appendChild(div);
-
-        // تأخير بسيط لإظهار الكبسولات واحدة تلو الأخرى
-        setTimeout(() => div.classList.add('visible'), index * 200);
-      });
+    const capsule = JSON.parse(localStorage.getItem('currentCapsule'));
+    if (capsule) {
+      document.querySelector('h1').textContent = capsule.title;
+      document.querySelector('p').textContent = capsule.text;
+    } else {
+      document.querySelector('h1').textContent = "❌ لا توجد كبسولة محددة";
+      document.querySelector('p').textContent = "ارجع للصفحة الرئيسية لاختيار كبسولة.";
     }
 
-    function addCapsule() {
-      const title = prompt("عنوان الكبسولة:");
-      const text = prompt("محتوى الرسالة:");
-      if (title && text) {
-        sampleCapsules.unshift({ title, text });
-        renderCapsules();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+    function goBack() {
+      window.location.href = 'index.html';
     }
-
-    renderCapsules();
   </script>
 </body>
 </html>
