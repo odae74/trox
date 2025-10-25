@@ -1,200 +1,168 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>الفضاء الخالد 🌌</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فضاء تروكس 🪐</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: radial-gradient(circle at 50% 50%, #050515, #000010);
-      height: 100vh; overflow: hidden; color: white; font-family: "Tajawal", sans-serif;
-    }
-    #scene {
-      position: relative; width: 100%; height: 100%;
-    }
-    .top-bar {
-      position: absolute; top: 20px; right: 30px;
-      display: flex; gap: 15px; z-index: 10;
-    }
-    .top-bar button {
-      background: rgba(0, 153, 255, 0.3);
-      border: 1px solid #0af;
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #080014 0%, #000000 90%);
+      font-family: "Cairo", sans-serif;
       color: white;
-      padding: 8px 15px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .top-bar button:hover {
-      background: #0af;
     }
 
-    canvas#stars {
-      position: absolute; top: 0; left: 0; z-index: 0;
-    }
-
-    .armored {
-      position: absolute;
-      width: 100px; height: 100px;
-      transition: transform 1s ease;
-      cursor: pointer;
-      perspective: 600px;
-    }
-    .capsule-body {
-      width: 100%; height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 1s ease;
-    }
-    .armored.open .capsule-body {
-      transform: rotateY(180deg);
-    }
-    .shield-half {
-      position: absolute;
-      width: 100%; height: 100%;
-      backface-visibility: hidden;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #222, #444);
-      box-shadow: 0 0 15px #0af;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-    }
-    .shield-half.back {
-      transform: rotateY(180deg);
-      background: linear-gradient(135deg, #003, #006);
-    }
-    .cap-label {
-      text-align: center;
-      margin-top: 5px;
-      font-size: 0.9rem;
-      opacity: 0.8;
-    }
-
-    #modal {
+    .navbar {
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,30,0.9);
-      display: none;
+      top: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      z-index: 20;
+      padding: 15px 30px;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      z-index: 10;
     }
-    #modal.show { display: flex; }
-    #modal-content {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid #0af;
-      border-radius: 20px;
-      padding: 20px;
-      max-width: 500px;
+
+    .navbar h1 {
+      font-size: 1.2rem;
+      color: #bca0ff;
+      letter-spacing: 1px;
+    }
+
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+
+    .navbar a:hover {
+      color: #a772ff;
+    }
+
+    .space {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      perspective: 800px;
+    }
+
+    .capsule {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, #5535ff 0%, #2c006b 90%);
+      border-radius: 50%;
+      box-shadow: 0 0 40px rgba(170, 120, 255, 0.5);
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transition: transform 1s, box-shadow 1s;
+    }
+
+    .capsule:hover {
+      box-shadow: 0 0 60px rgba(230, 180, 255, 0.9);
+      transform: scale(1.1);
+    }
+
+    .capsule.opened {
+      background: radial-gradient(circle, #ffdc73 0%, #ffb347 100%);
+      box-shadow: 0 0 100px rgba(255, 200, 100, 0.9);
+      transform: rotateY(180deg) scale(1.2);
+    }
+
+    .capsule-content {
+      display: none;
+      position: absolute;
+      top: 130px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #a772ff;
+      border-radius: 15px;
+      padding: 10px 15px;
+      width: 180px;
       text-align: center;
-      box-shadow: 0 0 30px #0af;
-      animation: appear 0.5s ease;
+      font-size: 0.9rem;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(160, 100, 255, 0.5);
     }
-    @keyframes appear { from{ transform: scale(0.7); opacity:0; } to{ transform: scale(1); opacity:1; } }
+
+    .stars {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      animation: twinkle 4s infinite ease-in-out;
+      opacity: 0.5;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes float {
+      from { transform: translateY(0) rotate(0deg); }
+      to { transform: translateY(-30px) rotate(5deg); }
+    }
   </style>
 </head>
 <body>
-  <canvas id="stars"></canvas>
-  <div class="top-bar">
-    <button onclick="location.href='auth.html'">تسجيل / دخول</button>
-    <button onclick="location.href='كبسولة.html'">🚀 أطلق كبسولتك</button>
-  </div>
-  <div id="scene"></div>
 
-  <div id="modal">
-    <div id="modal-content">
-      <h2 id="mTitle"></h2>
-      <p id="mMeta"></p>
-      <p id="mMessage"></p>
-      <button onclick="closeModal()">إغلاق</button>
+  <div class="navbar">
+    <h1>⚡ كبسولات تروكس الخالدة</h1>
+    <div>
+      <a href="auth.html">تسجيل / دخول</a>
+      <a href="capsule.html">أطلق كبسولتك 🚀</a>
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <div class="space" id="space"></div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCR8AiukqMEGOFDsjhv7tsFFFLDM5gWpu4",
-      authDomain: "trox-capsules.firebaseapp.com",
-      projectId: "trox-capsules",
-      storageBucket: "trox-capsules.firebasestorage.app",
-      messagingSenderId: "104606988275",
-      appId: "1:104606988275:web:24d2a719dd863357660486",
-      measurementId: "G-MEKWLRWGDS"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const scene = document.getElementById("scene");
-    const modal = document.getElementById("modal");
-    const mTitle = document.getElementById("mTitle");
-    const mMeta = document.getElementById("mMeta");
-    const mMessage = document.getElementById("mMessage");
-
-    async function loadCapsules() {
-      const q = query(collection(db, "capsules"), orderBy("ts", "desc"));
-      const snap = await getDocs(q);
-      snap.forEach(doc => createCapsule(doc.data()));
+  <script>
+    // إنشاء النجوم بالخلفية
+    const space = document.getElementById('space');
+    for (let i = 0; i < 150; i++) {
+      const star = document.createElement('div');
+      star.className = 'stars';
+      star.style.top = Math.random() * 100 + 'vh';
+      star.style.left = Math.random() * 100 + 'vw';
+      star.style.animationDuration = (2 + Math.random() * 3) + 's';
+      space.appendChild(star);
     }
 
-    function createCapsule(data) {
-      const el = document.createElement("div");
-      el.className = "armored";
-      el.style.top = Math.random()*80 + "%";
-      el.style.left = Math.random()*90 + "%";
+    // إنشاء كبسولات عشوائية
+    const messages = [
+      "احلم بلا حدود 🌌",
+      "كل لحظة خالدة إن عشتها بصدق ❤️",
+      "الزمن لا ينتظر أحدًا... أطلق كبسولتك الآن!",
+      "Trox — عبر الزمن ✨"
+    ];
 
-      el.innerHTML = `
-        <div class="capsule-body">
-          <div class="shield-half front"><div class="inner">⚡</div></div>
-          <div class="shield-half back"><div class="inner">💠</div></div>
-        </div>
-        <div class="cap-label">${data.title || "كبسولة مجهولة"}</div>
-      `;
-      el.addEventListener("click", ()=>openCapsule(el, data));
-      scene.appendChild(el);
-    }
+    for (let i = 0; i < 6; i++) {
+      const capsule = document.createElement('div');
+      capsule.className = 'capsule';
+      capsule.style.top = Math.random() * 80 + 'vh';
+      capsule.style.left = Math.random() * 80 + 'vw';
+      capsule.style.animation = `float ${3 + Math.random() * 3}s ease-in-out infinite alternate`;
 
-    function openCapsule(el, data) {
-      el.classList.add("open");
-      mTitle.textContent = data.title || "كبسولة مجهولة";
-      mMeta.textContent = `${data.username || "مجهول"} • ${new Date(data.ts || Date.now()).toLocaleString("ar-EG")}`;
-      mMessage.textContent = data.message || "";
-      modal.classList.add("show");
-    }
-    function closeModal() {
-      modal.classList.remove("show");
-    }
+      const content = document.createElement('div');
+      content.className = 'capsule-content';
+      content.innerText = messages[i % messages.length];
+      capsule.appendChild(content);
 
-    const cvs = document.getElementById("stars");
-    const ctx = cvs.getContext("2d");
-    let W,H,stars=[];
-    function resize(){
-      W=innerWidth;H=innerHeight;cvs.width=W;cvs.height=H;
-      stars=Array.from({length:150},()=>({x:Math.random()*W,y:Math.random()*H,s:Math.random()*2+0.3}));
-    }
-    window.addEventListener("resize",resize);resize();
-    function animate(){
-      ctx.fillStyle="rgba(2,2,20,0.4)";
-      ctx.fillRect(0,0,W,H);
-      ctx.fillStyle="#0af";
-      stars.forEach(st=>{
-        ctx.globalAlpha=st.s/2;
-        ctx.beginPath();
-        ctx.arc(st.x,st.y,st.s,0,Math.PI*2);
-        ctx.fill();
-        st.y+=st.s*0.15;
-        if(st.y>H)st.y=0;
+      capsule.addEventListener('click', () => {
+        const isOpen = capsule.classList.toggle('opened');
+        content.style.display = isOpen ? 'block' : 'none';
       });
-      requestAnimationFrame(animate);
+
+      space.appendChild(capsule);
     }
-    animate();
-    loadCapsules();
   </script>
 </body>
 </html>
