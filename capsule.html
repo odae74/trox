@@ -3,82 +3,121 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📩 كبسولتك - Trox</title>
+  <title>Trox – كبسولات الفضاء 🌌</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
     body {
-      font-family: 'Tajawal', sans-serif;
-      background: radial-gradient(circle at 50% 30%, #101030, #050515 80%);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      text-align: center;
-      padding: 2rem;
+      margin: 0;
+      font-family: "Tajawal", sans-serif;
+      background: radial-gradient(circle at center, #000010 0%, #000015 100%);
       overflow: hidden;
-    }
-
-    .capsule-box {
-      background: linear-gradient(145deg, #1a1a3a, #111);
-      padding: 2.5rem;
-      border-radius: 30px;
-      box-shadow: 0 0 50px rgba(0,0,0,0.6);
-      width: min(90%, 600px);
-      animation: float 4s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    h1 { font-size: 2rem; color: #9cf; margin-bottom: 1.5rem; }
-    p { font-size: 1.2rem; color: #ddd; line-height: 1.7; white-space: pre-line; }
-
-    .back-btn {
-      margin-top: 2.5rem;
-      background: #007bff;
       color: white;
-      padding: 0.8rem 1.8rem;
-      border: none;
-      border-radius: 30px;
-      font-size: 1.1rem;
-      cursor: pointer;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+    .capsules {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 40px;
+      gap: 20px;
+    }
+    .capsule {
+      background: rgba(255,255,255,0.08);
+      padding: 20px;
+      border-radius: 20px;
+      width: 250px;
+      box-shadow: 0 0 10px rgba(0,200,255,0.3);
+      backdrop-filter: blur(6px);
       transition: 0.3s;
     }
-    .back-btn:hover { background: #0056b3; transform: scale(1.05); }
-
-    footer {
-      margin-top: 3rem;
-      color: #999;
-      font-size: 0.9rem;
+    .capsule:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(0,255,255,0.5);
+    }
+    h2 {
+      color: #00ccff;
+      font-size: 1.2em;
+    }
+    p {
+      color: #ddd;
+      font-size: 0.9em;
+    }
+    .author {
+      font-size: 0.8em;
+      color: #888;
+      margin-top: 10px;
+    }
+    a {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      color: #00ccff;
+      text-decoration: none;
+      z-index: 2;
     }
   </style>
 </head>
 <body>
-  <div class="capsule-box" id="capsuleBox">
-    <h1>تحميل الكبسولة...</h1>
-    <p></p>
-  </div>
-
-  <button class="back-btn" onclick="goBack()">🔙 العودة إلى الصفحة الرئيسية</button>
-  <footer>© 2025 Trox Capsule</footer>
+  <a href="index.html">← العودة لإنشاء كبسولة</a>
+  <canvas id="stars"></canvas>
+  <div class="capsules" id="capsulesContainer"></div>
 
   <script>
-    const capsule = JSON.parse(localStorage.getItem('currentCapsule'));
-    if (capsule) {
-      document.querySelector('h1').textContent = capsule.title;
-      document.querySelector('p').textContent = capsule.text;
-    } else {
-      document.querySelector('h1').textContent = "❌ لا توجد كبسولة محددة";
-      document.querySelector('p').textContent = "ارجع للصفحة الرئيسية لاختيار كبسولة.";
+    // خلفية النجوم
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.onresize = resize;
+    resize();
+
+    for (let i = 0; i < 200; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5,
+        s: Math.random() * 0.5,
+      });
     }
 
-    function goBack() {
-      window.location.href = 'index.html';
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'white';
+      stars.forEach(star => {
+        star.y += star.s;
+        if (star.y > canvas.height) star.y = 0;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      requestAnimationFrame(animate);
     }
+    animate();
+
+    // عرض الكبسولات
+    const container = document.getElementById('capsulesContainer');
+    const capsules = JSON.parse(localStorage.getItem('capsules') || '[]');
+    capsules.reverse().forEach(c => {
+      if (c.visibility === "private") return;
+      const el = document.createElement('div');
+      el.className = 'capsule';
+      el.innerHTML = `
+        <h2>${c.title}</h2>
+        <p>${c.message}</p>
+        <div class="author">✍️ ${c.name} • ${c.date}</div>
+      `;
+      container.appendChild(el);
+    });
   </script>
 </body>
 </html>
