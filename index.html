@@ -1,124 +1,200 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Trox – الفضاء الواسع والكبسولات</title>
-<style>
-  body {
-    margin: 0;
-    overflow: hidden;
-    font-family: "Cairo", sans-serif;
-    background: radial-gradient(ellipse at center, #000010 0%, #000015 100%);
-    color: #fff;
-  }
-  canvas { display: block; }
-  .tooltip {
-    position: absolute;
-    background: rgba(0,0,0,0.8);
-    padding: 8px 12px;
-    border-radius: 8px;
-    pointer-events: none;
-    font-size: 0.9rem;
-    max-width: 200px;
-    display: none;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trox - الكبسولة الخالدة 🚀</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@500;700&display=swap');
+
+    * { box-sizing: border-box; padding: 0; margin: 0; }
+    body {
+      height: 100vh;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #02030f, #000);
+      font-family: 'Cairo', sans-serif;
+      color: #fff;
+    }
+
+    canvas {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    header {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 2;
+    }
+    header h1 {
+      color: #00ccff;
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+    header p {
+      color: #bfcde0;
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    .capsule {
+      position: absolute;
+      width: 120px;
+      height: 60px;
+      border-radius: 40px;
+      background: linear-gradient(135deg, rgba(0,204,255,0.8), rgba(255,255,255,0.1));
+      box-shadow: 0 0 25px rgba(0,200,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: transform 0.3s;
+    }
+
+    .capsule:hover {
+      transform: scale(1.1);
+    }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: rgba(15, 20, 40, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0,200,255,0.3);
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+      z-index: 10;
+      color: #fff;
+      transition: 0.3s ease;
+      backdrop-filter: blur(12px);
+    }
+    .popup.active {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .popup h2 {
+      color: #00ccff;
+      margin-bottom: 10px;
+    }
+    .popup p {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #dbe6ff;
+    }
+    .close-btn {
+      margin-top: 16px;
+      padding: 8px 20px;
+      border: none;
+      background: #00ccff;
+      color: #000;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      color: #777;
+      font-size: 0.85rem;
+      z-index: 2;
+    }
+  </style>
 </head>
 <body>
-<canvas id="space"></canvas>
-<div id="tooltip" class="tooltip"></div>
-<script>
-const canvas = document.getElementById('space');
-const ctx = canvas.getContext('2d');
-let width = canvas.width = window.innerWidth;
-let height = canvas.height = window.innerHeight;
+  <canvas id="stars"></canvas>
+  <header>
+    <h1>⚡ Trox – الكبسولة الخالدة ⚡</h1>
+    <p>فضاء رقمي يحتوي كبسولات خالدة مليئة برسائل البشر من كل زمان 🌌</p>
+  </header>
 
-window.addEventListener('resize', ()=>{
-  width = canvas.width = window.innerWidth;
-  height = canvas.height = window.innerHeight;
-});
+  <div id="popup" class="popup">
+    <h2>📜 رسالة خالدة</h2>
+    <p id="popupMessage"></p>
+    <button class="close-btn" onclick="closePopup()">إغلاق</button>
+  </div>
 
-// نجوم
-const stars = [];
-for(let i=0;i<150;i++){
-  stars.push({
-    x: Math.random()*width,
-    y: Math.random()*height,
-    size: Math.random()*2+1,
-    opacity: Math.random()*0.8+0.2
-  });
-}
+  <footer>© 2025 مشروع Trox من Odae Waked</footer>
 
-// كبسولات عشوائية
-const ranks = ["common","special","legend"];
-const capsules = [];
-for(let i=0;i<50;i++){
-  capsules.push({
-    x: Math.random()*2000-1000,
-    y: Math.random()*2000-1000,
-    title: "كبسولة "+(i+1),
-    message: "رسالة عشوائية "+(i+1),
-    rank: ranks[Math.floor(Math.random()*ranks.length)],
-    size: 8 + Math.random()*4
-  });
-}
+  <script>
+    /* 🌟 خلفية النجوم */
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
 
-// متغيرات التمرير
-let offsetX = 0, offsetY = 0;
-let isDragging = false;
-let dragStart = {};
+    let stars = Array(200).fill().map(() => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 1.5,
+      speed: Math.random() * 0.3 + 0.05
+    }));
 
-canvas.addEventListener('mousedown', e=>{
-  isDragging=true;
-  dragStart={x:e.clientX-offsetX, y:e.clientY-offsetY};
-});
-canvas.addEventListener('mouseup', ()=>{ isDragging=false; });
-canvas.addEventListener('mousemove', e=>{
-  if(isDragging){
-    offsetX = e.clientX - dragStart.x;
-    offsetY = e.clientY - dragStart.y;
-  }
-  // tooltip hover
-  const tooltip = document.getElementById('tooltip');
-  let found=false;
-  capsules.forEach(c=>{
-    const dx = e.clientX - (c.x+offsetX+width/2);
-    const dy = e.clientY - (c.y+offsetY+height/2);
-    if(Math.sqrt(dx*dx+dy*dy)<c.size+4){
-      tooltip.style.display='block';
-      tooltip.style.left=(e.clientX+12)+'px';
-      tooltip.style.top=(e.clientY+12)+'px';
-      tooltip.innerHTML=`<strong>${c.title}</strong><br>${c.message}<br><em>${c.rank}</em>`;
-      found=true;
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'white';
+      stars.forEach(s => {
+        ctx.globalAlpha = Math.random();
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+        s.y += s.speed;
+        if (s.y > canvas.height) s.y = 0;
+      });
+      requestAnimationFrame(drawStars);
     }
-  });
-  if(!found) tooltip.style.display='none';
-});
+    drawStars();
 
-// رسم الفضاء
-function draw(){
-  ctx.clearRect(0,0,width,height);
-  // نجوم
-  stars.forEach(s=>{
-    ctx.fillStyle = `rgba(255,255,255,${s.opacity})`;
-    ctx.beginPath();
-    ctx.arc(s.x+offsetX, s.y+offsetY, s.size,0,Math.PI*2);
-    ctx.fill();
-  });
-  // كبسولات
-  capsules.forEach(c=>{
-    let color="#00ccff";
-    if(c.rank==="special") color="#ffcc00";
-    if(c.rank==="legend") color="#ff4444";
-    ctx.fillStyle=color;
-    ctx.beginPath();
-    ctx.arc(c.x+offsetX+width/2, c.y+offsetY+height/2, c.size,0,Math.PI*2);
-    ctx.fill();
-  });
-  requestAnimationFrame(draw);
-}
-draw();
-</script>
+    /* 💫 الكبسولات */
+    const messages = [
+      "إلى المستقبل: لا تنسَ أن تبتسم مهما تغير الزمن.",
+      "كل لحظة هي كبسولة من الزمن، احتفظ بها جيدًا.",
+      "هناك نجوم كثيرة... لكن كبسولتك قد تضيء المجرة!",
+      "احلم كما لو أنك خالد، واعمل كما لو أنك ستموت غدًا.",
+      "Trox — حيث تبقى الرسائل للأبد.",
+      "لا تدع الخوف يمنعك من إرسال رسالتك للعالم."
+    ];
+
+    const createCapsules = () => {
+      for (let i = 0; i < 10; i++) {
+        const cap = document.createElement('div');
+        cap.className = 'capsule';
+        cap.textContent = 'كبسولة ' + (i + 1);
+        cap.style.top = Math.random() * 80 + '%';
+        cap.style.left = Math.random() * 80 + '%';
+        cap.onclick = () => openPopup(messages[Math.floor(Math.random() * messages.length)]);
+        document.body.appendChild(cap);
+      }
+    };
+
+    createCapsules();
+
+    /* 🔮 نوافذ الرسائل */
+    const popup = document.getElementById('popup');
+    const popupMessage = document.getElementById('popupMessage');
+
+    function openPopup(msg) {
+      popupMessage.textContent = msg;
+      popup.classList.add('active');
+    }
+
+    function closePopup() {
+      popup.classList.remove('active');
+    }
+  </script>
 </body>
 </html>
