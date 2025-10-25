@@ -1,61 +1,42 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>⚡ كبسولة تروكس الخالدة ⚡</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Tajawal", sans-serif;
-      direction: rtl;
-    }
-    body {
-      background: radial-gradient(circle at center, #06061a, #020210);
-      color: white;
-      overflow: hidden;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-
-    .halo {
-      font-size: 2rem;
-      letter-spacing: 2px;
-      text-shadow: 0 0 20px #00ffff, 0 0 40px #0077ff;
-      animation: glow 2s ease-in-out infinite alternate;
-    }
-
-    @keyframes glow {
-      from { text-shadow: 0 0 10px #0077ff, 0 0 20px #00ffff; opacity: 0.7; }
-      to { text-shadow: 0 0 40px #00ffff, 0 0 80px #0077ff; opacity: 1; }
-    }
-
-    .loading {
-      margin-top: 1rem;
-      font-size: 1.2rem;
-      opacity: 0.8;
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0%,100% { opacity: 0.5; }
-      50% { opacity: 1; }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ تروكس - الكبسولة الخالدة ⚡</title>
+<style>
+  body {
+    margin: 0;
+    background: black;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: "Cairo", sans-serif;
+  }
+  .halo {
+    font-size: 2rem;
+    color: #fff;
+    text-align: center;
+    opacity: 0;
+    animation: appear 2s ease-in-out forwards, fadeout 1s ease-in-out 4s forwards;
+  }
+  @keyframes appear {
+    0% { opacity: 0; transform: scale(0.8);}
+    100% { opacity: 1; transform: scale(1);}
+  }
+  @keyframes fadeout {
+    to { opacity: 0; transform: scale(1.2);}
+  }
+</style>
 </head>
 <body>
   <div class="halo">⚡ كبسولة تروكس الخالدة ⚡</div>
-  <div class="loading">جارٍ فتح البوابة إلى الفضاء...</div>
-
   <script>
     setTimeout(() => {
       window.location.href = "space.html";
-    }, 4000);
+    }, 5000); // الانتقال بعد 5 ثوانٍ فقط
   </script>
 </body>
 </html>
