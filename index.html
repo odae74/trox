@@ -3,122 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>⚡ Trox - الكبسولة الخالدة ⚡</title>
+  <title>Trox – أنشئ كبسولتك 🚀</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-    * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
     body {
-      font-family: 'Tajawal', sans-serif;
-      background: radial-gradient(circle at 50% 20%, #0f0f24, #050510 80%);
-      color: #fff;
+      margin: 0;
+      font-family: "Tajawal", sans-serif;
+      background: radial-gradient(ellipse at center, #000010 0%, #000015 100%);
+      color: white;
+      text-align: center;
       overflow-x: hidden;
     }
-    header {
-      text-align: center;
-      padding: 3rem 1rem;
-      background: linear-gradient(135deg, #202060, #100030);
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
-      position: sticky; top: 0; z-index: 10;
+    h1 {
+      margin-top: 50px;
+      color: #00ccff;
     }
-    header h1 { font-size: 2.5rem; letter-spacing: 2px; }
-    header p { color: #ccc; margin-top: 0.5rem; }
-
     .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.5rem;
-      padding: 3rem 2rem;
-      perspective: 1000px;
-    }
-    .capsule {
-      background: linear-gradient(145deg, #1a1a3a, #111);
+      margin: 50px auto;
+      width: 90%;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
       border-radius: 20px;
-      padding: 2rem;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      transform-style: preserve-3d;
-      transition: all 0.5s ease;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 0 20px rgba(0, 200, 255, 0.2);
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 1rem;
+    }
+    button {
+      background: #00ccff;
+      color: black;
+      font-weight: bold;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
       cursor: pointer;
-      position: relative;
+      transition: 0.3s;
     }
-    .capsule:hover {
-      transform: translateY(-10px) rotateY(10deg);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    button:hover {
+      background: #00aadd;
+      transform: scale(1.05);
     }
-    .capsule h3 { margin-bottom: 1rem; font-size: 1.4rem; color: #9cf; }
-    .capsule p { font-size: 1rem; color: #ccc; }
-
-    .create-btn {
-      display: block; margin: 3rem auto;
-      background: #007bff; color: white;
-      padding: 1rem 2rem; border: none; border-radius: 50px;
-      font-size: 1.3rem; cursor: pointer; transition: 0.3s;
-      box-shadow: 0 5px 15px rgba(0,0,255,0.3);
+    a {
+      color: #00ccff;
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
     }
-    .create-btn:hover { background: #0056b3; transform: scale(1.05); }
-
-    footer {
-      text-align: center; padding: 2rem;
-      color: #aaa; background: #0a0a1a; font-size: 0.9rem;
-    }
-
-    .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
-    .fade-in.visible { opacity: 1; transform: translateY(0); }
   </style>
 </head>
 <body>
-  <header>
-    <h1>⚡ Trox - الكبسولة الخالدة ⚡</h1>
-    <p>ارسل رسالتك إلى المستقبل، واحتفظ بذكراك الرقمية إلى الأبد.</p>
-  </header>
+  <h1>🌌 Trox – أنشئ كبسولتك 🌌</h1>
+  <div class="container">
+    <p>اكتب رسالة خالدة تشاركها مع العالم في الفضاء الرقمي.</p>
 
-  <button class="create-btn" onclick="addCapsule()">🪐 إنشاء كبسولة جديدة</button>
+    <input id="name" placeholder="اسمك (اختياري)" />
+    <input id="title" placeholder="عنوان الكبسولة" />
+    <textarea id="message" rows="5" placeholder="اكتب رسالتك هنا..."></textarea>
 
-  <section class="container" id="capsules"></section>
+    <select id="visibility">
+      <option value="public">🌍 عامة</option>
+      <option value="private">🔒 خاصة</option>
+    </select>
 
-  <footer>
-    🌌 مشروع تجريبي من Trox © 2025 — النسخة التجريبية الأولى
-  </footer>
+    <button onclick="saveCapsule()">💫 احفظ الكبسولة</button>
+    <a href="capsules.html">شاهد الكبسولات المنتشرة 🚀</a>
+  </div>
 
   <script>
-    const capsulesContainer = document.getElementById('capsules');
-    const sampleCapsules = JSON.parse(localStorage.getItem('capsules') || '[]').length
-      ? JSON.parse(localStorage.getItem('capsules'))
-      : [
-          { title: "رسالة من الغد 🌅", text: "تذكر أنك كنت قويًا يومًا ما، وستكون أقوى غدًا." },
-          { title: "ذكريات 2025 🪞", text: "أول موقع أنشأته... الكبسولة الخالدة 💎." },
-          { title: "إلى نفسي في المستقبل 🕊️", text: "هل تذكرت كيف بدأت؟ استمر ولا تتوقف." },
-        ];
+    function saveCapsule() {
+      const name = document.getElementById('name').value || "مجهول";
+      const title = document.getElementById('title').value || "بدون عنوان";
+      const message = document.getElementById('message').value || "رسالة فارغة";
+      const visibility = document.getElementById('visibility').value;
 
-    function renderCapsules() {
-      capsulesContainer.innerHTML = '';
-      sampleCapsules.forEach((capsule, index) => {
-        const div = document.createElement('div');
-        div.className = 'capsule fade-in';
-        div.innerHTML = `<h3>${capsule.title}</h3><p>${capsule.text.slice(0, 70)}...</p>`;
-        div.onclick = () => openCapsule(index);
-        capsulesContainer.appendChild(div);
-        setTimeout(() => div.classList.add('visible'), index * 150);
-      });
+      const capsule = { name, title, message, visibility, date: new Date().toLocaleString() };
+      let capsules = JSON.parse(localStorage.getItem('capsules') || '[]');
+      capsules.push(capsule);
+      localStorage.setItem('capsules', JSON.stringify(capsules));
+
+      alert("🚀 تم حفظ الكبسولة محليًا (عرض تجريبي)");
+      document.getElementById('message').value = '';
     }
-
-    function addCapsule() {
-      const title = prompt("عنوان الكبسولة:");
-      const text = prompt("محتوى الرسالة:");
-      if (title && text) {
-        sampleCapsules.unshift({ title, text });
-        localStorage.setItem('capsules', JSON.stringify(sampleCapsules));
-        renderCapsules();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }
-
-    function openCapsule(index) {
-      localStorage.setItem('currentCapsule', JSON.stringify(sampleCapsules[index]));
-      window.location.href = 'capsule.html';
-    }
-
-    renderCapsules();
   </script>
 </body>
 </html>
