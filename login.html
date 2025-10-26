@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — TROX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #FFD700;
+      --orange: #FF6F00;
+      --deep-blue: #0D1B2A;
+      --black: #000000;
+      --gray: #1a1a1a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: radial-gradient(circle at center, var(--black) 0%, var(--deep-blue) 100%);
+      font-family: 'Poppins', sans-serif;
+      color: var(--gold);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .login-container {
+      background: var(--gray);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 30px var(--gold);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      animation: fadeIn 2s ease-in;
+    }
+
+    .login-container h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: var(--gold);
+    }
+
+    .login-container p {
+      font-size: 0.9rem;
+      color: #ccc;
+      margin-bottom: 30px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 6px;
+      background: #111;
+      color: var(--gold);
+      font-size: 1rem;
+      outline: none;
+      transition: box-shadow 0.3s ease;
+    }
+
+    input:focus {
+      box-shadow: 0 0 10px var(--orange);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: var(--orange);
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: var(--gold);
+    }
+
+    .note {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>TROX</h1>
+    <p>Enter the Capsule Space</p>
+    <form onsubmit="login(event)">
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Enter</button>
+    </form>
+    <div class="note">Your identity unlocks your universe.</div>
+  </div>
+
+  <script>
+    function login(e) {
+      e.preventDefault();
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value.trim();
+
+      if (user && pass) {
+        // Simulate login (no backend yet)
+        localStorage.setItem('trox_user', user);
+        window.location.href = 'dashboard.html';
+      } else {
+        alert('Please enter both username and password.');
+      }
+    }
+  </script>
+</body>
+</html>
