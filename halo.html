@@ -5,76 +5,112 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>كبسولة تروكس الخالدة ⚜️</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
     body {
       height: 100vh;
       width: 100vw;
       overflow: hidden;
-      background: radial-gradient(circle at center, #0b0b0f 0%, #000 100%);
+      background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
       font-family: 'Cairo', sans-serif;
       color: #fff;
+      position: relative;
     }
 
+    /* خلفية ذرات متحركة */
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .stars::before, .stars::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: radial-gradient(2px 2px at 50% 50%, #ffd700, transparent);
+      animation: starsMove 60s linear infinite;
+    }
+
+    .stars::after {
+      animation-direction: reverse;
+      opacity: 0.5;
+    }
+
+    @keyframes starsMove {
+      0% { transform: rotate(0deg) scale(1); }
+      100% { transform: rotate(360deg) scale(1.2); }
+    }
+
+    /* الهالة الذهبية */
     .halo {
       position: relative;
-      width: 200px;
-      height: 200px;
+      width: 220px;
+      height: 220px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 215, 0, 0.8), transparent 70%);
-      box-shadow: 0 0 40px 20px rgba(255, 215, 0, 0.2);
-      animation: pulse 3s infinite ease-in-out;
+      background: radial-gradient(circle, rgba(255, 223, 77, 0.8) 0%, rgba(0, 0, 0, 0.8) 70%);
+      box-shadow: 0 0 60px 30px rgba(255, 215, 0, 0.3);
+      animation: pulse 4s infinite ease-in-out;
+      z-index: 2;
     }
 
     @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-        opacity: 0.9;
-      }
-      50% {
-        transform: scale(1.2);
-        opacity: 1;
-      }
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.15); opacity: 1; }
     }
 
+    /* العنوان */
     .title {
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: bold;
-      letter-spacing: 2px;
-      margin-top: 40px;
+      letter-spacing: 3px;
+      margin-top: 50px;
       text-align: center;
       background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       opacity: 0;
-      animation: fadeIn 2s ease forwards 1s;
+      animation: fadeIn 2s ease forwards 1.2s;
+      z-index: 2;
     }
 
     @keyframes fadeIn {
       to { opacity: 1; }
     }
 
+    /* زر الدخول */
     .enter-btn {
-      margin-top: 60px;
-      padding: 12px 30px;
-      font-size: 1.2rem;
-      background: linear-gradient(90deg, #ffd700, #f6e05e);
+      margin-top: 70px;
+      padding: 14px 36px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      background: linear-gradient(135deg, #ffd700, #f0c93d);
       color: #000;
       border: none;
-      border-radius: 30px;
+      border-radius: 50px;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
       opacity: 0;
-      transition: 0.4s;
       transform: translateY(20px);
+      transition: 0.3s;
       animation: showBtn 1s ease forwards 3.5s;
+      z-index: 2;
     }
 
     @keyframes showBtn {
@@ -85,18 +121,18 @@
     }
 
     .enter-btn:hover {
-      background: linear-gradient(90deg, #fff5a1, #ffd700);
-      box-shadow: 0 0 30px rgba(255, 215, 0, 1);
+      background: linear-gradient(135deg, #fff8b3, #ffd700);
+      box-shadow: 0 0 40px rgba(255, 215, 0, 1);
       transform: scale(1.05);
     }
 
     @media (max-width: 600px) {
       .halo {
-        width: 150px;
-        height: 150px;
+        width: 160px;
+        height: 160px;
       }
       .title {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
       }
       .enter-btn {
         font-size: 1rem;
@@ -105,14 +141,18 @@
   </style>
 </head>
 <body>
+  <div class="stars"></div>
   <div class="halo"></div>
   <div class="title">⚜️ كبسولة تروكس الخالدة ⚜️</div>
   <button class="enter-btn" onclick="enterSpace()">ادخل إلى الفضاء 🚀</button>
 
   <script>
     function enterSpace() {
-      // عند الضغط على الزر، الانتقال إلى صفحة الفضاء
-      window.location.href = "space.html";
+      document.body.style.transition = "opacity 1s ease";
+      document.body.style.opacity = "0";
+      setTimeout(() => {
+        window.location.href = "space.html";
+      }, 1000);
     }
   </script>
 </body>
