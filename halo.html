@@ -7,136 +7,52 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
-      background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      font-family: 'Cairo', sans-serif;
-      color: #fff;
-      position: relative;
+      height:100vh; width:100vw; overflow:hidden;
+      background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+      display:flex; justify-content:center; align-items:center; flex-direction:column;
+      font-family:'Cairo',sans-serif; color:#fff; perspective:1200px;
     }
 
-    /* خلفية ذرات متحركة */
-    .stars {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: transparent;
-      overflow: hidden;
-      z-index: 0;
-    }
-
+    .stars { position:absolute; width:100%; height:100%; z-index:0; background:transparent; }
     .stars::before, .stars::after {
-      content: "";
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
+      content:""; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
       background-image: radial-gradient(2px 2px at 50% 50%, #ffd700, transparent);
       animation: starsMove 60s linear infinite;
     }
+    .stars::after { animation-direction:reverse; opacity:0.5; }
+    @keyframes starsMove { 0%{transform:rotate(0deg) scale(1);} 100%{transform:rotate(360deg) scale(1.2);} }
 
-    .stars::after {
-      animation-direction: reverse;
-      opacity: 0.5;
-    }
-
-    @keyframes starsMove {
-      0% { transform: rotate(0deg) scale(1); }
-      100% { transform: rotate(360deg) scale(1.2); }
-    }
-
-    /* الهالة الذهبية */
     .halo {
-      position: relative;
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 223, 77, 0.8) 0%, rgba(0, 0, 0, 0.8) 70%);
-      box-shadow: 0 0 60px 30px rgba(255, 215, 0, 0.3);
-      animation: pulse 4s infinite ease-in-out;
-      z-index: 2;
+      position:relative; width:220px; height:220px; border-radius:50%;
+      background: radial-gradient(circle, rgba(255,223,77,0.8) 0%, rgba(0,0,0,0.8) 70%);
+      box-shadow:0 0 60px 30px rgba(255,215,0,0.3);
+      animation: pulse 4s infinite ease-in-out; z-index:2;
     }
+    @keyframes pulse { 0%,100%{transform:scale(1); opacity:0.9;} 50%{transform:scale(1.15); opacity:1;} }
 
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 0.9; }
-      50% { transform: scale(1.15); opacity: 1; }
-    }
-
-    /* العنوان */
     .title {
-      font-size: 2rem;
-      font-weight: bold;
-      letter-spacing: 3px;
-      margin-top: 50px;
-      text-align: center;
-      background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      opacity: 0;
-      animation: fadeIn 2s ease forwards 1.2s;
-      z-index: 2;
+      font-size:2rem; font-weight:bold; letter-spacing:3px; margin-top:50px; text-align:center;
+      background:linear-gradient(90deg,#ffd700,#fff,#ffd700);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      opacity:0; animation: fadeIn 2s ease forwards 1.2s; z-index:2;
     }
+    @keyframes fadeIn { to { opacity:1; } }
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-
-    /* زر الدخول */
     .enter-btn {
-      margin-top: 70px;
-      padding: 14px 36px;
-      font-size: 1.3rem;
-      font-weight: bold;
-      background: linear-gradient(135deg, #ffd700, #f0c93d);
-      color: #000;
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
-      box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
-      opacity: 0;
-      transform: translateY(20px);
-      transition: 0.3s;
-      animation: showBtn 1s ease forwards 3.5s;
-      z-index: 2;
+      margin-top:70px; padding:14px 36px; font-size:1.3rem; font-weight:bold;
+      background: linear-gradient(135deg,#ffd700,#f0c93d); color:#000; border:none; border-radius:50px;
+      cursor:pointer; box-shadow:0 0 25px rgba(255,215,0,0.8);
+      opacity:0; transform:translateY(20px); transition:0.3s; animation: showBtn 1s ease forwards 3.5s; z-index:2;
     }
+    @keyframes showBtn { to { opacity:1; transform:translateY(0); } }
+    .enter-btn:hover { background:linear-gradient(135deg,#fff8b3,#ffd700); box-shadow:0 0 40px rgba(255,215,0,1); transform:scale(1.05); }
 
-    @keyframes showBtn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .enter-btn:hover {
-      background: linear-gradient(135deg, #fff8b3, #ffd700);
-      box-shadow: 0 0 40px rgba(255, 215, 0, 1);
-      transform: scale(1.05);
-    }
-
-    @media (max-width: 600px) {
-      .halo {
-        width: 160px;
-        height: 160px;
-      }
-      .title {
-        font-size: 1.5rem;
-      }
-      .enter-btn {
-        font-size: 1rem;
-      }
+    @media (max-width:600px){
+      .halo{width:160px;height:160px;}
+      .title{font-size:1.5rem;}
+      .enter-btn{font-size:1rem;}
     }
   </style>
 </head>
@@ -148,11 +64,12 @@
 
   <script>
     function enterSpace() {
-      document.body.style.transition = "opacity 1s ease";
+      document.body.style.transition = "transform 1.2s ease-in, opacity 1.2s ease-in";
+      document.body.style.transform = "rotateY(720deg) scale(0.1)";
       document.body.style.opacity = "0";
       setTimeout(() => {
         window.location.href = "space.html";
-      }, 1000);
+      }, 1200);
     }
   </script>
 </body>
