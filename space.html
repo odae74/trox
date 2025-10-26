@@ -1,172 +1,568 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الفضاء - Trox Capsules 🌌</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: radial-gradient(circle at center, #000014, #000010, #000);
-      font-family: 'Tajawal', sans-serif;
-      color: white;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Trox — فضاء الكبسولات الخالدة</title>
+<meta name="description" content="Trox — انطلق في فضاء الكبسولات الخالدة. أطلق كبسولتك واقرأ كبسولات الآخرين.">
+<style>
+  :root{
+    --accent:#00d4ff;
+    --accent-2:#9b6aff;
+    --gold:#ffd166;
+    --glass: rgba(255,255,255,0.04);
+    --muted:#9fb0c7;
+  }
+  html,body{height:100%;margin:0;background:#000; font-family: "Cairo", sans-serif; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+  #canvas-wrap{position:fixed;inset:0;z-index:0;overflow:hidden}
+  canvas{display:block}
 
-    #message-box {
-      position: fixed;
-      top: 40%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(0, 255, 255, 0.4);
-      padding: 20px 40px;
-      border-radius: 20px;
-      text-align: center;
-      font-size: 1.3rem;
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-      opacity: 0;
-      transition: opacity 0.5s ease-in-out;
-    }
+  /* Top UI */
+  #topbar {
+    position:fixed; top:14px; left:14px; right:14px; z-index:60;
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+    pointer-events:none;
+  }
+  .left, .right { display:flex; gap:10px; align-items:center; pointer-events:auto; }
+  .logo {
+    display:flex; gap:10px; align-items:center;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding:8px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.03);
+    backdrop-filter: blur(6px);
+  }
+  .logo .mark { width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#001;background:linear-gradient(90deg,var(--accent),var(--accent-2)); }
+  .btn { background:var(--glass); border:1px solid rgba(255,255,255,0.04); color:var(--accent); padding:8px 12px; border-radius:10px; font-weight:700; cursor:pointer; }
+  .btn.primary { background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#001; box-shadow:0 8px 30px rgba(110,231,255,0.06); }
 
-    #message-box.active {
-      opacity: 1;
-    }
-  </style>
+  /* pointer lock hint */
+  #plock { position:fixed; top:70px; left:50%; transform:translateX(-50%); z-index:55;
+    background:rgba(0,0,0,0.45); color:var(--muted); padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); font-weight:600; display:flex; gap:8px; align-items:center; pointer-events:auto;
+  }
+
+  /* overlay message modal */
+  #overlay {
+    position:fixed; right:50%; top:52%; transform:translate(50%,-50%); z-index:70;
+    min-width:320px; max-width:760px;
+    background:linear-gradient(180deg, rgba(4,8,15,0.95), rgba(2,4,10,0.94));
+    color:#eaffff; border-radius:14px; padding:18px; border:1px solid rgba(0,220,255,0.12);
+    box-shadow:0 20px 60px rgba(0,0,0,0.7); display:none;
+  }
+  #overlay h3{margin:0 0 8px; color:var(--accent)}
+  #overlay .meta{color:var(--muted); font-size:0.9rem; margin-bottom:10px}
+  #overlay p{margin:0; line-height:1.6}
+  #overlay .controls{margin-top:12px; display:flex; gap:8px; justify-content:flex-end}
+  #overlay button{ padding:8px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:700 }
+  #overlay .close{ background:var(--accent); color:#001; }
+
+  /* legend bottom */
+  #legend { position:fixed; left:14px; bottom:14px; z-index:60; color:var(--muted); background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01)); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); }
+
+  /* responsiveness */
+  @media (max-width:760px){
+    #overlay{ right:8px; left:8px; transform:none; top:55%; }
+    #plock{ top:100px; font-size:14px }
+  }
+</style>
 </head>
 <body>
-  <div id="message-box"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script>
-    let scene, camera, renderer;
-    let capsules = [];
-    let particles = [];
+<div id="canvas-wrap"></div>
 
-    function init() {
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.z = 30;
+<div id="topbar">
+  <div class="left">
+    <div class="logo" title="Trox — الكبسولة الخالدة">
+      <div class="mark">TRX</div>
+      <div>
+        <div style="font-size:12px;color:var(--muted)">مشروع تجريبي</div>
+        <div style="font-weight:800">Trox — الكبسولة الخالدة</div>
+      </div>
+    </div>
+  </div>
 
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+  <div class="right">
+    <button class="btn" id="btnAuth">🔐 تسجيل / دخول</button>
+    <button class="btn primary" id="btnCreate">🚀 أطلق كبسولتك</button>
+  </div>
+</div>
 
-      const ambient = new THREE.AmbientLight(0x00b4d8, 1.3);
-      const pointLight = new THREE.PointLight(0xffffff, 1.2);
-      pointLight.position.set(10, 20, 20);
-      scene.add(ambient, pointLight);
+<div id="plock">انقر داخل المشهد ثم حرّك الماوس / المس الشاشة للتحكم</div>
 
-      const geometry = new THREE.CylinderGeometry(5, 5, 2, 6);
-      const material = new THREE.MeshStandardMaterial({
-        color: 0x00eaff,
-        metalness: 0.8,
-        roughness: 0.2,
-        emissive: 0x0096c7,
-        emissiveIntensity: 0.5
+<div id="overlay" role="dialog" aria-modal="true">
+  <h3 id="ovTitle">عنوان الكبسولة</h3>
+  <div class="meta" id="ovMeta">المرسل • الرتبة • التاريخ</div>
+  <p id="ovBody">نص الكبسولة...</p>
+  <div class="controls">
+    <button class="close" id="ovClose">إغلاق</button>
+  </div>
+</div>
+
+<div id="legend">استخدم الفأرة/اللمس للتحرك — اضغط على أي كبسولة لفتح رسالتها</div>
+
+<!-- Module scripts -->
+<script type="module">
+// --- IMPORTS (three.js + OrbitControls) ---
+import * as THREE from 'https://unpkg.com/three@0.154.0/build/three.module.js';
+import { OrbitControls } from 'https://unpkg.com/three@0.154.0/examples/jsm/controls/OrbitControls.js';
+
+// Optional Firebase imports (will run only if you enable config below)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+/* ===========================
+   CONFIG - ضع إعدادات Firebase هنا إذا تريد كبسولات حقيقية
+   (إن لم تضعها، سيشتغل المشهد مع بيانات تجريبية تلقائياً)
+   =========================== */
+const FIREBASE_ENABLED = true; // غيّر إلى false لتجربة دون Firestore (التجريبي)
+const firebaseConfig = {
+  apiKey: "AIzaSyCR8AiukqMEGOFDsjhv7tsFFFLDM5gWpu4",
+  authDomain: "trox-capsules.firebaseapp.com",
+  projectId: "trox-capsules",
+  storageBucket: "trox-capsules.firebasestorage.app",
+  messagingSenderId: "104606988275",
+  appId: "1:104606988275:web:24d2a719dd863357660486",
+  measurementId: "G-MEKWLRWGDS"
+};
+
+/* ===========================
+   Scene Setup
+   =========================== */
+const container = document.getElementById('canvas-wrap');
+const overlay = document.getElementById('overlay');
+const ovTitle = document.getElementById('ovTitle');
+const ovMeta = document.getElementById('ovMeta');
+const ovBody = document.getElementById('ovBody');
+const ovClose = document.getElementById('ovClose');
+
+let renderer, scene, camera, controls, raycaster;
+let capsuleEntries = new Map(); // id -> {group, data}
+let mouse = new THREE.Vector2();
+let tempV = new THREE.Vector3();
+
+initScene();
+animate();
+
+/* -------------------------
+   functions
+   ------------------------- */
+function initScene(){
+  // Renderer
+  renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  container.appendChild(renderer.domElement);
+
+  // Scene & Camera
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000010);
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 5000);
+  camera.position.set(0, 8, 28);
+
+  // Lights
+  const hemi = new THREE.HemisphereLight(0x8899ff, 0x080820, 0.6);
+  scene.add(hemi);
+  const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+  dir.position.set(10, 20, 10);
+  scene.add(dir);
+  // point light for glow
+  const glow = new THREE.PointLight(0x00d4ff, 0.12, 200);
+  scene.add(glow);
+
+  // Fog for depth
+  scene.fog = new THREE.FogExp2(0x000018, 0.0012);
+
+  // Starfield (particles)
+  const starCount = 1200;
+  const pos = new Float32Array(starCount*3);
+  for(let i=0;i<starCount;i++){
+    pos[i*3] = (Math.random()-0.5)*2000;
+    pos[i*3+1] = (Math.random()-0.5)*2000;
+    pos[i*3+2] = (Math.random()-0.5)*2000;
+  }
+  const starsGeo = new THREE.BufferGeometry();
+  starsGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const starsMat = new THREE.PointsMaterial({ color:0xbfefff, size:0.8, transparent:true, opacity:0.75 });
+  const stars = new THREE.Points(starsGeo, starsMat);
+  scene.add(stars);
+
+  // controls (OrbitControls works for desktop + mobile touch)
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.rotateSpeed = 0.5;
+  controls.panSpeed = 0.4;
+  controls.zoomSpeed = 0.8;
+  controls.minDistance = 6;
+  controls.maxDistance = 120;
+
+  // Raycaster
+  raycaster = new THREE.Raycaster();
+
+  // responsive
+  window.addEventListener('resize', onResize);
+
+  // load capsules (firestore or demo)
+  if(FIREBASE_ENABLED){
+    try {
+      initializeApp(firebaseConfig);
+      const db = getFirestore();
+      const q = query(collection(db, 'capsules'), orderBy('ts','desc'));
+      onSnapshot(q, (snap) => {
+        // apply diffs: add/update/remove
+        snap.docChanges().forEach(ch => {
+          const id = ch.doc.id;
+          const data = ch.doc.data();
+          // normalize timestamp
+          if(data.ts && data.ts.seconds) data.ts = data.ts.seconds * 1000;
+          if(ch.type === 'added') addCapsuleEntry(id, data);
+          if(ch.type === 'modified') updateCapsuleEntry(id, data);
+          if(ch.type === 'removed') removeCapsuleEntry(id);
+        });
       });
-
-      for (let i = 0; i < 25; i++) {
-        const capsule = new THREE.Mesh(geometry, material.clone());
-        capsule.position.set(
-          (Math.random() - 0.5) * 120,
-          (Math.random() - 0.5) * 120,
-          (Math.random() - 0.5) * 120
-        );
-        capsule.rotation.x = Math.random() * Math.PI;
-        capsule.rotation.y = Math.random() * Math.PI;
-        capsule.userData = {
-          message: "💠 كبسولة رقم " + (i + 1),
-          exploded: false
-        };
-        scene.add(capsule);
-        capsules.push(capsule);
-      }
-
-      animate();
-
-      window.addEventListener('resize', onWindowResize);
-      window.addEventListener('click', onDocumentClick);
+    } catch(e){
+      console.error('Firebase init failed:', e);
+      // fallback demo
+      setTimeout(()=> createDemoCapsules(), 200);
     }
+  } else {
+    createDemoCapsules();
+  }
 
-    function animate() {
-      requestAnimationFrame(animate);
-      capsules.forEach(c => {
-        c.rotation.x += 0.002;
-        c.rotation.y += 0.003;
-      });
+  // DOM events for interaction
+  renderer.domElement.addEventListener('pointerdown', onPointerDown);
+  ovClose.addEventListener('click', hideOverlay);
+  document.getElementById('btnCreate').addEventListener('click', ()=> location.href='كبسولة.html');
+  document.getElementById('btnAuth').addEventListener('click', ()=> location.href='auth.html');
+}
 
-      particles.forEach(p => {
-        p.position.add(p.userData.velocity);
-        p.material.opacity -= 0.01;
-        if (p.material.opacity <= 0) {
-          scene.remove(p);
-        }
-      });
+/* ===========================
+   CAPSULES: create Hex Prism group with decoration
+   =========================== */
+function createCapsuleMesh(data){
+  // data: { title, message, username, rank }
+  // color by rank
+  const rank = (data && data.rank) ? data.rank.toString().toLowerCase() : 'common';
+  const map = { common:{col:0x44b3ff, trim:0x0b3a55}, special:{col:0xb36aff, trim:0x2b0f3a}, legend:{col:0xffd166, trim:0x3a2a00} };
+  const rinfo = map.common;
+  if(rank.includes('special') || rank.includes('خاصة')) rinfo = map.special;
+  if(rank.includes('legend') || rank.includes('legendary') || rank.includes('خالدة')) rinfo = map.legend;
 
-      renderer.render(scene, camera);
+  // Main hex prism (Cylinder with 6 sides) - rotateX so the hex faces front/back
+  const geom = new THREE.CylinderGeometry(1.2, 1.2, 1.8, 6, 1, false);
+  geom.rotateX(Math.PI/2);
+
+  // metal material with env-like feel (no env map used; use emissive + metalness)
+  const material = new THREE.MeshStandardMaterial({
+    color: rinfo.col,
+    metalness: 0.85,
+    roughness: 0.25,
+    emissive: 0x000000,
+    emissiveIntensity: 0.5,
+  });
+
+  // Add gold trim as thin extruded ring (use Torus scaled to fit)
+  const trimMat = new THREE.MeshStandardMaterial({ color: rinfo.trim, metalness:1.0, roughness:0.15 });
+
+  const prism = new THREE.Mesh(geom, material);
+
+  // edge highlight (thin lines)
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geom), new THREE.LineBasicMaterial({ color:0x000000, linewidth:1, transparent:true, opacity:0.12 }));
+
+  // decoration: engraved pattern via canvas texture applied as decal on sides (simple)
+  const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'rgba(255,255,255,0)';
+  ctx.fillRect(0,0,256,256);
+  // draw pattern: concentric hex-ish lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 2;
+  for(let i=0;i<6;i++){
+    ctx.beginPath();
+    ctx.rect(20+i*12,20+i*12,216 - i*24,216 - i*24);
+    ctx.stroke();
+  }
+  const patternTex = new THREE.CanvasTexture(canvas);
+  patternTex.encoding = THREE.sRGBEncoding;
+  patternTex.wrapS = patternTex.wrapT = THREE.RepeatWrapping;
+  patternTex.repeat.set(1,1);
+
+  // subtle inner plate (front) showing small icon
+  const plateGeom = new THREE.CircleGeometry(0.5, 32);
+  const plateMat = new THREE.MeshStandardMaterial({ map: patternTex, metalness:0.6, roughness:0.2, color: 0x001833, emissive: 0x002233, emissiveIntensity:0.15 });
+  plateMat.side = THREE.DoubleSide;
+  const plate = new THREE.Mesh(plateGeom, plateMat);
+  plate.position.set(0,0,0.95);
+  plate.rotateX(Math.PI/2);
+
+  // group everything
+  const group = new THREE.Group();
+  group.add(prism);
+  group.add(edges);
+  group.add(plate);
+
+  // add slight glow plane behind (transparent)
+  const glowGeo = new THREE.PlaneGeometry(2.6,2.6);
+  const glowMat = new THREE.MeshBasicMaterial({ color: rinfo.col, transparent:true, opacity:0.06, blending:THREE.AdditiveBlending });
+  const glow = new THREE.Mesh(glowGeo, glowMat);
+  glow.position.set(0,0,-0.2);
+  group.add(glow);
+
+  // store metadata
+  group.userData = {
+    data: data || {},
+    isOpen: false,
+    baseMat: material,
+    trimMat
+  };
+
+  return group;
+}
+
+/* ===========================
+   Manage entries (Add/Update/Remove)
+   =========================== */
+function addCapsuleEntry(id, data){
+  if(capsuleEntries.has(id)) return;
+  const mesh = createCapsuleMesh(data);
+  // random position in a large spherical volume
+  const pos = randomPosition(180);
+  mesh.position.copy(pos);
+  mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+  mesh.scale.setScalar(THREE.MathUtils.lerp(0.9, 1.6, Math.random()));
+  scene.add(mesh);
+  capsuleEntries.set(id, { id, mesh, data });
+}
+
+function updateCapsuleEntry(id, data){
+  const entry = capsuleEntries.get(id);
+  if(!entry){ addCapsuleEntry(id,data); return; }
+  entry.data = data;
+  entry.mesh.userData.data = data;
+  // could update color/appearance if rank changed
+}
+
+function removeCapsuleEntry(id){
+  const entry = capsuleEntries.get(id);
+  if(!entry) return;
+  scene.remove(entry.mesh);
+  capsuleEntries.delete(id);
+}
+
+/* demo if firebase not available */
+function createDemoCapsules(){
+  for(let i=0;i<28;i++){
+    const rank = (i%7===0) ? 'legend' : (i%3===0) ? 'special' : 'common';
+    const data = { title:`رسالة #${i+1}`, message:`هذه رسالة تجريبية للكبسولة رقم ${i+1}.`, username:`User${i+1}`, rank, ts: Date.now() - i*100000 };
+    addCapsuleEntry('demo-'+i, data);
+  }
+}
+
+/* ===========================
+   Utility: random position in sphere
+   =========================== */
+function randomPosition(radius=150){
+  // uniform-ish distribution
+  const u = Math.random(); const v = Math.random();
+  const theta = 2*Math.PI*u;
+  const phi = Math.acos(2*v-1);
+  const r = Math.cbrt(Math.random()) * radius;
+  const x = r * Math.sin(phi) * Math.cos(theta);
+  const y = r * Math.sin(phi) * Math.sin(theta);
+  const z = r * Math.cos(phi);
+  return new THREE.Vector3(x,y,z);
+}
+
+/* ===========================
+   Interaction (raycast click / touch)
+   =========================== */
+function onPointerDown(event){
+  // get normalized coords
+  const rect = renderer.domElement.getBoundingClientRect();
+  const x = ( (event.clientX - rect.left) / rect.width ) * 2 - 1;
+  const y = - ( (event.clientY - rect.top) / rect.height ) * 2 + 1;
+  mouse.set(x,y);
+  raycaster.setFromCamera(mouse, camera);
+
+  // build list of groups' children to intersect
+  const objects = [];
+  capsuleEntries.forEach(e => objects.push(e.mesh));
+  const hits = raycaster.intersectObjects(objects, true);
+  if(hits.length>0){
+    // find the top-level group (mesh)
+    let obj = hits[0].object;
+    while(obj.parent && !Array.from(capsuleEntries.values()).some(v=>v.mesh===obj)) obj = obj.parent;
+    const entry = Array.from(capsuleEntries.values()).find(v=>v.mesh===obj);
+    if(entry) openCapsule(entry);
+  }
+}
+
+async function openCapsule(entry){
+  const g = entry.mesh;
+  if(g.userData.isOpen) return;
+  g.userData.isOpen = true;
+
+  // animate "open" : scale up + emissive pulse
+  const baseMat = g.userData.baseMat;
+  const start = performance.now();
+  const dur = 300;
+  const startScale = g.scale.x;
+  const targetScale = startScale * 1.45;
+
+  // emissive tween variables
+  const emissiveStart = baseMat.emissiveIntensity || 0;
+  const emissiveTarget = 1.6;
+
+  function step(t){
+    const p = Math.min(1, (t - start)/dur);
+    const ease = 1 - Math.pow(1-p,3);
+    const s = startScale + (targetScale - startScale) * ease;
+    g.scale.setScalar(s);
+    baseMat.emissiveIntensity = emissiveStart + (emissiveTarget - emissiveStart) * ease;
+    if(p<1) requestAnimationFrame(step);
+    else {
+      // show overlay
+      showOverlay(entry);
+      // auto-close after 5s
+      setTimeout(()=> closeCapsule(entry), 5000);
     }
+  }
+  requestAnimationFrame(step);
+}
 
-    function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+function closeCapsule(entry){
+  const g = entry.mesh;
+  if(!g.userData.isOpen) return;
+  g.userData.isOpen = false;
+  const baseMat = g.userData.baseMat;
+  const start = performance.now();
+  const dur = 350;
+  const startScale = g.scale.x;
+  const targetScale = 1.0 * (entry.mesh.userData.data && entry.mesh.userData.data.sizeFactor ? entry.mesh.userData.data.sizeFactor : 1.0);
+  const emissiveStart = baseMat.emissiveIntensity || 1.0;
+  function step(t){
+    const p = Math.min(1, (t - start)/dur);
+    const ease = 1 - Math.pow(1-p,3);
+    const s = startScale + (targetScale - startScale) * ease;
+    g.scale.setScalar(s);
+    baseMat.emissiveIntensity = emissiveStart * (1 - p*0.9);
+    if(p<1) requestAnimationFrame(step);
+    else {
+      hideOverlay();
     }
+  }
+  requestAnimationFrame(step);
+}
 
-    function onDocumentClick(event) {
-      const mouse = new THREE.Vector2(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1
-      );
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, camera);
+/* Overlay show/hide */
+function showOverlay(entry){
+  const d = entry.data || entry.mesh.userData.data || {};
+  ovTitle.textContent = d.title || 'كبسولة خالدة';
+  const date = d.ts ? new Date(d.ts).toLocaleString('ar-EG') : '';
+  ovMeta.textContent = `${d.username||'مجهول'} • ${d.rank||'عادية'} • ${date}`;
+  ovBody.textContent = d.message || 'لا توجد رسالة';
+  overlay.style.display = 'block';
+}
+function hideOverlay(){
+  overlay.style.display = 'none';
+}
 
-      const intersects = raycaster.intersectObjects(capsules);
-      if (intersects.length > 0) {
-        const obj = intersects[0].object;
-        if (!obj.userData.exploded) {
-          obj.userData.exploded = true;
-          triggerExplosion(obj);
-          showMessage(obj.userData.message);
-        }
-      }
+/* ===========================
+   Animation loop
+   =========================== */
+let prev = performance.now();
+function animate(){
+  requestAnimationFrame(animate);
+  const now = performance.now();
+  const dt = (now - prev) / 1000; prev = now;
+
+  // floating micro-motion for capsules
+  capsuleEntries.forEach(entry => {
+    const mesh = entry.mesh;
+    // bobbing using position offset
+    mesh.userData._float = mesh.userData._float || { t: Math.random()*100 };
+    mesh.userData._float.t += dt * 0.5 * (0.6 + (mesh.scale.x-1)*0.3);
+    mesh.position.y += Math.sin(mesh.userData._float.t) * 0.02;
+    // slow rotation
+    mesh.rotation.y += 0.0012 * (0.8 + (mesh.scale.x-1)*0.6);
+  });
+
+  // subtle starfield rotate
+  // (the Points instance is the first added; safe to rotate scene children? skip heavy ops)
+
+  // update controls
+  controls.update();
+
+  // update glow light to camera vicinity
+  // place point light a bit in front of camera for ambient effect
+  scene.children.forEach(c => {
+    if(c.type === 'PointLight' && c.intensity < 0.6) {
+      // don't touch main lights
     }
+  });
 
-    function triggerExplosion(obj) {
-      const center = obj.position.clone();
-      const material = new THREE.MeshBasicMaterial({ color: 0x00eaff, transparent: true, opacity: 1 });
+  renderer.render(scene, camera);
+}
 
-      for (let i = 0; i < 30; i++) {
-        const particle = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), material.clone());
-        particle.position.copy(center);
-        particle.userData = {
-          velocity: new THREE.Vector3(
-            (Math.random() - 0.5) * 0.5,
-            (Math.random() - 0.5) * 0.5,
-            (Math.random() - 0.5) * 0.5
-          )
-        };
-        scene.add(particle);
-        particles.push(particle);
-      }
+/* window resize */
+function onResize(){
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
 
-      const flash = new THREE.PointLight(0x00ffff, 5, 50);
-      flash.position.copy(center);
-      scene.add(flash);
-      setTimeout(() => scene.remove(flash), 300);
+/* pointer/touch */
+function onPointerDownWrapper(ev){ onPointerDown(ev); }
+function onPointerDown(ev){
+  ev.preventDefault();
+  onPointerDownEvent(ev);
+}
+function onPointerDownEvent(event){
+  try {
+    onPointerDownCallback(event);
+  } catch(err){
+    console.error('Pointer error', err);
+  }
+}
+// raycast handler wrapper to reduce stack depth
+function onPointerDownCallback(event){
+  const rect = renderer.domElement.getBoundingClientRect();
+  const clientX = event.clientX || (event.touches && event.touches[0] && event.touches[0].clientX);
+  const clientY = event.clientY || (event.touches && event.touches[0] && event.touches[0].clientY);
+  if(clientX === undefined) return;
+  const x = ((clientX - rect.left) / rect.width) * 2 - 1;
+  const y = -((clientY - rect.top) / rect.height) * 2 + 1;
+  mouse.set(x,y);
+  raycaster.setFromCamera(mouse, camera);
+  const objects = [];
+  capsuleEntries.forEach(e => objects.push(e.mesh));
+  const hits = raycaster.intersectObjects(objects, true);
+  if(hits.length>0){
+    let obj = hits[0].object;
+    // climb to top-level group
+    while(obj && !Array.from(capsuleEntries.values()).some(v=>v.mesh===obj)) obj = obj.parent;
+    const entry = Array.from(capsuleEntries.values()).find(v=>v.mesh===obj);
+    if(entry) openCapsule(entry);
+  }
+}
 
-      scene.remove(obj);
-    }
+/* attach pointer for desktop + touch */
+renderer.domElement.addEventListener('pointerdown', onPointerDown, { passive:false });
+renderer.domElement.addEventListener('touchstart', onPointerDown, { passive:false });
 
-    function showMessage(msg) {
-      const box = document.getElementById("message-box");
-      box.innerHTML = msg;
-      box.classList.add("active");
-      setTimeout(() => box.classList.remove("active"), 4000);
-    }
+/* ===========================
+   Initialize Firestore listener later if enabled
+   =========================== */
+if(FIREBASE_ENABLED){
+  // if initialization succeeded earlier then onSnapshot set up; else fallback to demo after delay
+  // If firebase failed to init, create demo
+  setTimeout(()=> {
+    if(capsuleEntries.size===0) createDemoCapsules();
+  }, 800);
+} else {
+  // non-firebase: demo
+  createDemoCapsules();
+}
 
-    init();
-  </script>
+</script>
 </body>
 </html>
