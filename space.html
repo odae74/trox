@@ -1,132 +1,172 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-  let scene, camera, renderer;
-  let capsules = [];
-  let particles = [];
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الفضاء - Trox Capsules 🌌</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #000014, #000010, #000);
+      font-family: 'Tajawal', sans-serif;
+      color: white;
+    }
 
-  function init() {
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 30;
+    #message-box {
+      position: fixed;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(0, 255, 255, 0.4);
+      padding: 20px 40px;
+      border-radius: 20px;
+      text-align: center;
+      font-size: 1.3rem;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    #message-box.active {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="message-box"></div>
 
-    const ambient = new THREE.AmbientLight(0x00b4d8, 1.3);
-    const pointLight = new THREE.PointLight(0xffffff, 1.2);
-    pointLight.position.set(10, 20, 20);
-    scene.add(ambient, pointLight);
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    let scene, camera, renderer;
+    let capsules = [];
+    let particles = [];
 
-    const geometry = new THREE.CylinderGeometry(5, 5, 2, 6);
-    const material = new THREE.MeshStandardMaterial({
-      color: 0x00eaff,
-      metalness: 0.8,
-      roughness: 0.2,
-      emissive: 0x0096c7,
-      emissiveIntensity: 0.5
-    });
+    function init() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 30;
 
-    for (let i = 0; i < 25; i++) {
-      const capsule = new THREE.Mesh(geometry, material.clone());
-      capsule.position.set(
-        (Math.random() - 0.5) * 120,
-        (Math.random() - 0.5) * 120,
-        (Math.random() - 0.5) * 120
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      const ambient = new THREE.AmbientLight(0x00b4d8, 1.3);
+      const pointLight = new THREE.PointLight(0xffffff, 1.2);
+      pointLight.position.set(10, 20, 20);
+      scene.add(ambient, pointLight);
+
+      const geometry = new THREE.CylinderGeometry(5, 5, 2, 6);
+      const material = new THREE.MeshStandardMaterial({
+        color: 0x00eaff,
+        metalness: 0.8,
+        roughness: 0.2,
+        emissive: 0x0096c7,
+        emissiveIntensity: 0.5
+      });
+
+      for (let i = 0; i < 25; i++) {
+        const capsule = new THREE.Mesh(geometry, material.clone());
+        capsule.position.set(
+          (Math.random() - 0.5) * 120,
+          (Math.random() - 0.5) * 120,
+          (Math.random() - 0.5) * 120
+        );
+        capsule.rotation.x = Math.random() * Math.PI;
+        capsule.rotation.y = Math.random() * Math.PI;
+        capsule.userData = {
+          message: "💠 كبسولة رقم " + (i + 1),
+          exploded: false
+        };
+        scene.add(capsule);
+        capsules.push(capsule);
+      }
+
+      animate();
+
+      window.addEventListener('resize', onWindowResize);
+      window.addEventListener('click', onDocumentClick);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      capsules.forEach(c => {
+        c.rotation.x += 0.002;
+        c.rotation.y += 0.003;
+      });
+
+      particles.forEach(p => {
+        p.position.add(p.userData.velocity);
+        p.material.opacity -= 0.01;
+        if (p.material.opacity <= 0) {
+          scene.remove(p);
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function onDocumentClick(event) {
+      const mouse = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
       );
-      capsule.rotation.x = Math.random() * Math.PI;
-      capsule.rotation.y = Math.random() * Math.PI;
-      capsule.userData = {
-        message: "💠 كبسولة رقم " + (i + 1),
-        exploded: false
-      };
-      scene.add(capsule);
-      capsules.push(capsule);
-    }
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
 
-    animate();
-
-    window.addEventListener('resize', onWindowResize);
-    window.addEventListener('click', onDocumentClick);
-  }
-
-  function animate() {
-    requestAnimationFrame(animate);
-    capsules.forEach(c => {
-      c.rotation.x += 0.002;
-      c.rotation.y += 0.003;
-    });
-
-    // حركة الجزيئات بعد الانفجار
-    particles.forEach(p => {
-      p.position.add(p.userData.velocity);
-      p.material.opacity -= 0.01;
-      if (p.material.opacity <= 0) {
-        scene.remove(p);
-      }
-    });
-
-    renderer.render(scene, camera);
-  }
-
-  function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }
-
-  function onDocumentClick(event) {
-    const mouse = new THREE.Vector2(
-      (event.clientX / window.innerWidth) * 2 - 1,
-      -(event.clientY / window.innerHeight) * 2 + 1
-    );
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, camera);
-
-    const intersects = raycaster.intersectObjects(capsules);
-    if (intersects.length > 0) {
-      const obj = intersects[0].object;
-      if (!obj.userData.exploded) {
-        obj.userData.exploded = true;
-        triggerExplosion(obj);
-        showMessage(obj.userData.message);
+      const intersects = raycaster.intersectObjects(capsules);
+      if (intersects.length > 0) {
+        const obj = intersects[0].object;
+        if (!obj.userData.exploded) {
+          obj.userData.exploded = true;
+          triggerExplosion(obj);
+          showMessage(obj.userData.message);
+        }
       }
     }
-  }
 
-  function triggerExplosion(obj) {
-    const center = obj.position.clone();
-    const material = new THREE.MeshBasicMaterial({ color: 0x00eaff, transparent: true });
+    function triggerExplosion(obj) {
+      const center = obj.position.clone();
+      const material = new THREE.MeshBasicMaterial({ color: 0x00eaff, transparent: true, opacity: 1 });
 
-    for (let i = 0; i < 30; i++) {
-      const particle = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), material.clone());
-      particle.position.copy(center);
-      particle.userData = {
-        velocity: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.5,
-          (Math.random() - 0.5) * 0.5,
-          (Math.random() - 0.5) * 0.5
-        )
-      };
-      scene.add(particle);
-      particles.push(particle);
+      for (let i = 0; i < 30; i++) {
+        const particle = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), material.clone());
+        particle.position.copy(center);
+        particle.userData = {
+          velocity: new THREE.Vector3(
+            (Math.random() - 0.5) * 0.5,
+            (Math.random() - 0.5) * 0.5,
+            (Math.random() - 0.5) * 0.5
+          )
+        };
+        scene.add(particle);
+        particles.push(particle);
+      }
+
+      const flash = new THREE.PointLight(0x00ffff, 5, 50);
+      flash.position.copy(center);
+      scene.add(flash);
+      setTimeout(() => scene.remove(flash), 300);
+
+      scene.remove(obj);
     }
 
-    // وميض ضوئي لحظة الانفجار
-    const flash = new THREE.PointLight(0x00ffff, 5, 50);
-    flash.position.copy(center);
-    scene.add(flash);
-    setTimeout(() => scene.remove(flash), 300);
+    function showMessage(msg) {
+      const box = document.getElementById("message-box");
+      box.innerHTML = msg;
+      box.classList.add("active");
+      setTimeout(() => box.classList.remove("active"), 4000);
+    }
 
-    scene.remove(obj); // الكبسولة تختفي
-  }
-
-  function showMessage(msg) {
-    const box = document.getElementById("message-box");
-    box.innerHTML = msg;
-    box.classList.add("active");
-    setTimeout(() => box.classList.remove("active"), 4000);
-  }
-
-  init();
-</script>
+    init();
+  </script>
+</body>
+</html>
