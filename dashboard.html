@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — TROX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: radial-gradient(circle at center, #000000 0%, #0D1B2A 100%);
+      font-family: 'Poppins', sans-serif;
+      color: #FFD700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .info {
+      background: #1a1a1a;
+      border: 2px solid #FFD700;
+      border-radius: 12px;
+      padding: 20px;
+      width: 300px;
+      text-align: center;
+      box-shadow: 0 0 20px #FF6F00;
+    }
+
+    .info p {
+      font-size: 0.9rem;
+      color: #ccc;
+      margin: 10px 0;
+    }
+
+    .info button {
+      background: #FF6F00;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .info button:hover {
+      background: #FFD700;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome Back</h1>
+  <div class="info">
+    <p><strong>User:</strong> <span id="username"></span></p>
+    <p><strong>Tier:</strong> Bronze</p>
+    <p><strong>Capsules Opened:</strong> 3</p>
+    <button onclick="window.location.href='space.html'">Enter Capsule Space</button>
+    <button onclick="window.location.href='tiers.html'">Upgrade Tier</button>
+  </div>
+
+  <script>
+    const user = localStorage.getItem('trox_user');
+    document.getElementById('username').innerText = user || 'Guest';
+  </script>
+</body>
+</html>
