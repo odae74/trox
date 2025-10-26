@@ -26,32 +26,34 @@
 
     .halo {
       position:relative; width:220px; height:220px; border-radius:50%;
-      background: radial-gradient(circle, rgba(255,223,77,0.8) 0%, rgba(0,0,0,0.8) 70%);
-      box-shadow:0 0 60px 30px rgba(255,215,0,0.3);
-      animation: pulse 4s infinite ease-in-out; z-index:2;
+      background: radial-gradient(circle, rgba(255,215,0,0.8) 0%, rgba(0,0,0,0.85) 70%);
+      box-shadow:0 0 80px 40px rgba(255,215,0,0.3);
+      animation: pulse 3s infinite ease-in-out; z-index:2;
+      border:2px solid #ffd700;
     }
-    @keyframes pulse { 0%,100%{transform:scale(1); opacity:0.9;} 50%{transform:scale(1.15); opacity:1;} }
+    @keyframes pulse { 0%,100%{transform:scale(1); opacity:0.9;} 50%{transform:scale(1.18); opacity:1;} }
 
     .title {
-      font-size:2rem; font-weight:bold; letter-spacing:3px; margin-top:50px; text-align:center;
+      font-size:2.2rem; font-weight:bold; letter-spacing:3px; margin-top:50px; text-align:center;
       background:linear-gradient(90deg,#ffd700,#fff,#ffd700);
       -webkit-background-clip:text; -webkit-text-fill-color:transparent;
       opacity:0; animation: fadeIn 2s ease forwards 1.2s; z-index:2;
+      text-shadow:0 0 12px rgba(255,215,0,0.7);
     }
     @keyframes fadeIn { to { opacity:1; } }
 
     .enter-btn {
       margin-top:70px; padding:14px 36px; font-size:1.3rem; font-weight:bold;
       background: linear-gradient(135deg,#ffd700,#f0c93d); color:#000; border:none; border-radius:50px;
-      cursor:pointer; box-shadow:0 0 25px rgba(255,215,0,0.8);
+      cursor:pointer; box-shadow:0 0 35px rgba(255,215,0,0.8);
       opacity:0; transform:translateY(20px); transition:0.3s; animation: showBtn 1s ease forwards 3.5s; z-index:2;
     }
     @keyframes showBtn { to { opacity:1; transform:translateY(0); } }
-    .enter-btn:hover { background:linear-gradient(135deg,#fff8b3,#ffd700); box-shadow:0 0 40px rgba(255,215,0,1); transform:scale(1.05); }
+    .enter-btn:hover { background:linear-gradient(135deg,#fff8b3,#ffd700); box-shadow:0 0 50px rgba(255,215,0,1); transform:scale(1.08); }
 
     @media (max-width:600px){
       .halo{width:160px;height:160px;}
-      .title{font-size:1.5rem;}
+      .title{font-size:1.6rem;}
       .enter-btn{font-size:1rem;}
     }
   </style>
