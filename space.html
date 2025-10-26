@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Capsule Space</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(to bottom, #000000, #0d1b2a);
+      overflow: hidden;
+      font-family: 'Orbitron', sans-serif;
+      color: #ffd700;
+    }
+
+    .space {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .capsule {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: #1e1e1e;
+      border: 2px solid #ffd700;
+      clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .capsule:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px #ff6f00;
+    }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #000;
+      color: #ffd700;
+      padding: 20px;
+      border: 2px solid #ff6f00;
+      display: none;
+      z-index: 10;
+      max-width: 80%;
+      text-align: center;
+    }
+
+    .close-btn {
+      margin-top: 10px;
+      background: #ff6f00;
+      color: #000;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="space" id="space">
+    <div class="capsule" style="top: 20%; left: 30%;" onclick="openCapsule('“Ideas are stars — let them shine.”')"></div>
+    <div class="capsule" style="top: 50%; left: 60%;" onclick="openCapsule('Tier Locked — Upgrade to Silver')"></div>
+    <div class="capsule" style="top: 70%; left: 40%;" onclick="openCapsule('“Secrets are seeds of wisdom.”')"></div>
+  </div>
+
+  <div class="popup" id="popup">
+    <div id="popup-content"></div>
+    <button class="close-btn" onclick="closePopup()">Close</button>
+  </div>
+
+  <script>
+    function openCapsule(message) {
+      document.getElementById('popup-content').innerText = message;
+      document.getElementById('popup').style.display = 'block';
+    }
+
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
