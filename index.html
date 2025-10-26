@@ -1,73 +1,222 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
 <title>Trox — الهالة</title>
-<meta name="description" content="Trox — الكبسولة الخالدة — ابدأ رحلتك">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Trox — كبسولة خالدة. تجربة موبايل أولاً.">
+
 <style>
-  :root{--accent:#00d4ff;--accent2:#9b6aff;--bg:#000010}
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:linear-gradient(180deg,#000015,#000);font-family:"Cairo",system-ui,Arial;color:#fff}
-  .wrap{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:18px;text-align:center}
-  .halo{
-    width:86vw; max-width:520px; height:86vw; max-height:520px;
-    border-radius:999px; display:flex;align-items:center;justify-content:center;
-    background: radial-gradient(circle at 30% 30%, rgba(0,212,255,0.12), rgba(155,106,255,0.06) 40%, rgba(255,255,255,0.02) 70%);
-    box-shadow:0 12px 60px rgba(0,0,0,0.6), inset 0 0 40px rgba(0,212,255,0.06);
-    border:1px solid rgba(255,255,255,0.04);
-  }
-  h1{font-size:clamp(18px,6vw,36px);margin:0;color:var(--accent);letter-spacing:0.6px}
-  p{color:rgba(255,255,255,0.85);max-width:520px;margin-top:10px}
-  .actions{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-  .btn{padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--accent);font-weight:700;cursor:pointer}
-  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#001;box-shadow:0 12px 30px rgba(110,231,255,0.06)}
-  .skip{position:fixed;top:12px;left:12px;color:#9fb0c7;font-weight:700}
-  /* small text */
-  .small{margin-top:12px;color:#9fb0c7;font-size:14px}
-  @media(min-width:900px){ .halo{width:520px;height:520px} }
+:root{
+  --accent:#00d4ff;
+  --accent-2:#9b6aff;
+  --bg1:#00000d;
+  --bg2:#000018;
+  --glass: rgba(255,255,255,0.03);
+  --muted:#9fb0c7;
+  font-family: "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));-webkit-font-smoothing:antialiased;overflow:hidden}
+a{color:inherit;text-decoration:none}
+
+/* full-screen container */
+.app {
+  width:100vw;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  color:#eaf6ff;
+}
+
+/* halo card (circle) */
+.halo {
+  width:84vw;
+  height:84vw;
+  max-width:540px;
+  max-height:540px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:22px;
+  background:
+    radial-gradient(circle at 30% 28%, rgba(0,212,255,0.14) 0%, rgba(155,106,255,0.06) 34%, rgba(255,255,255,0.02) 70%),
+    linear-gradient(180deg, rgba(255,255,255,0.012), rgba(0,0,0,0.02));
+  box-shadow: 0 24px 80px rgba(0,0,0,0.55), inset 0 0 40px rgba(0,212,255,0.03);
+  border:1px solid rgba(255,255,255,0.04);
+  transform: translateZ(0);
+}
+
+/* animated glow layers */
+.halo::before, .halo::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:999px;
+  pointer-events:none;
+}
+.halo::before {
+  background: radial-gradient(circle at 40% 35%, rgba(0,212,255,0.06), transparent 30%);
+  filter: blur(22px);
+  opacity:0.95;
+  transform: scale(1);
+}
+.halo::after {
+  background: radial-gradient(circle at 60% 65%, rgba(155,106,255,0.04), transparent 30%);
+  filter: blur(40px);
+  opacity:0.8;
+  transform: scale(0.98);
+}
+
+/* title */
+.halo h1 {
+  font-size:clamp(18px,6vw,34px);
+  margin:0;
+  color:var(--accent);
+  letter-spacing:0.6px;
+  text-shadow: 0 6px 40px rgba(0,212,255,0.06);
+}
+.halo p {
+  margin-top:10px;
+  color: rgba(230,245,255,0.9);
+  font-size:14px;
+}
+
+/* controls below */
+.controls {
+  position:absolute;
+  bottom:34px;
+  left:18px;
+  right:18px;
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  z-index:40;
+}
+.btn {
+  padding:12px 14px;
+  border-radius:999px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: var(--glass);
+  color: var(--accent);
+  font-weight:800;
+  cursor:pointer;
+  min-width:120px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+}
+.btn.primary {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color:#001;
+  box-shadow: 0 18px 50px rgba(110,231,255,0.08);
+}
+
+/* skip link top-left */
+.skip {
+  position:fixed;
+  top:16px;
+  left:16px;
+  z-index:60;
+  color:var(--muted);
+  font-weight:700;
+  background: rgba(255,255,255,0.02);
+  padding:8px 12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.03);
+  cursor:pointer;
+  pointer-events:auto;
+}
+
+/* subtle entrance animations (will be triggered by JS) */
+.halo.entering { animation: haloPulseIn 1000ms cubic-bezier(.2,.9,.3,1) both; }
+.halo.leaving { animation: haloVanish 900ms cubic-bezier(.18,.9,.22,1) both; }
+
+@keyframes haloPulseIn {
+  0% { transform: scale(0.88); filter: blur(0.6px); opacity:0.12; }
+  60% { transform: scale(1.04); opacity:1; }
+  100% { transform: scale(1); opacity:1; }
+}
+@keyframes haloVanish {
+  0% { transform: scale(1); opacity:1; filter: blur(0px); }
+  60% { transform: scale(1.28); opacity:0.85; filter: blur(6px); }
+  100% { transform: scale(0.22); opacity:0; transform-origin:center center; }
+}
+
+/* small note */
+.note { position:fixed;bottom:12px; right:12px; color:var(--muted); font-size:13px; z-index:60; }
+
+/* make everything accessible for mobile */
+@media (prefers-reduced-motion: reduce) {
+  .halo.entering, .halo.leaving { animation:none; transform:none; opacity:1; }
+}
 </style>
 </head>
 <body>
-  <a class="skip" href="space.html">تخطي</a>
-  <div class="wrap" role="main">
-    <div class="halo" id="halo">
-      <div>
-        <h1>⚡ كبسولة Trox الخالدة ⚡</h1>
-        <p style="margin-top:8px">أطلق رسالتك، اجعلها خالدة في الفضاء — تجربة محمولة وسلسة.</p>
+  <a class="skip" href="space.html" aria-label="تخطي">تخطي</a>
+
+  <main class="app" role="main" aria-labelledby="haloTitle">
+    <div id="halo" class="halo entering" role="img" aria-label="هالة ترحيبية">
+      <div style="position:relative;z-index:2">
+        <h1 id="haloTitle">⚡ كبسولة تروكس الخالدة ⚡</h1>
+        <p>انطلق برسالتك إلى الفضاء — تجربة مصمّمة للهاتف أولًا.</p>
       </div>
     </div>
 
-    <div class="actions">
+    <div class="controls" aria-hidden="true">
       <button class="btn" id="btnAuth">🔐 تسجيل / دخول</button>
       <button class="btn primary" id="btnEnter">🚀 ادخل الفضاء</button>
     </div>
 
-    <div class="small">تصميم موبايل أولًا — يدعم كلا الجهازين</div>
-  </div>
+    <div class="note">افتح الموقع كـ "Add to Home" للحصول على تجربة كاملة بدون شريط المتصفح.</div>
+  </main>
 
 <script>
-  // halo animation then navigate
+/*
+  سلوك الهالة:
+  - تظهر مع حركة دخول
+  - بعد DELAY_MS تختفي مع تأثير مميز ثم ننتقل لـ space.html
+  - أزرار: تسجيل/دخول و ادخل الفضاء تعمل فورياً (يمكن تعديل)
+*/
+(function(){
   const halo = document.getElementById('halo');
   const btnEnter = document.getElementById('btnEnter');
   const btnAuth = document.getElementById('btnAuth');
+  const DELAY_MS = 2300; // مدة العرض قبل الزوال (نستطيع تعديلها)
+  const TRANSITION_MS = 900;
 
-  function doHalo() {
-    // scale + glow then navigate
-    halo.animate([
-      { transform: 'scale(1)', boxShadow: '0 12px 60px rgba(0,0,0,0.6)' },
-      { transform: 'scale(1.06)', boxShadow: '0 30px 120px rgba(0,212,255,0.12)' },
-      { transform: 'scale(0.24)', opacity: 0 }
-    ], { duration: 2200, easing: 'cubic-bezier(.2,.9,.3,1)' });
-
-    setTimeout(()=> location.href='space.html', 2200);
+  // Prevent double navigation
+  let navigated = false;
+  function goSpace(){
+    if(navigated) return; navigated = true;
+    halo.classList.remove('entering'); halo.classList.add('leaving');
+    // give time for vanish animation
+    setTimeout(()=> {
+      // replace with relative path إذا تغيرت أسماء الملفات
+      window.location.href = 'space.html';
+    }, TRANSITION_MS);
   }
 
-  btnEnter.addEventListener('click', ()=> doHalo());
-  btnAuth.addEventListener('click', ()=> location.href='auth.html');
+  // auto start after small delay so user sees halo
+  setTimeout(()=> { goSpace(); }, DELAY_MS);
 
-  // auto start halo after short delay
-  setTimeout(()=> doHalo(), 700);
+  // manual buttons
+  btnEnter.addEventListener('click', ()=> goSpace());
+  btnAuth.addEventListener('click', ()=> { window.location.href='auth.html'; });
+
+  // accessibility: allow tap/any key to skip
+  window.addEventListener('keydown', (e)=> { if(e.key === 'Escape') goSpace(); });
+  window.addEventListener('touchstart', function onFirstTouch() {
+    // allow audio contexts later. we remove listener after first touch.
+    window.removeEventListener('touchstart', onFirstTouch, false);
+  }, false);
+})();
 </script>
 </body>
 </html>
