@@ -3,40 +3,62 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Capsule Space</title>
+  <title>Capsule Space — TROX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
   <style>
-    body {
+    :root {
+      --gold: #FFD700;
+      --orange: #FF6F00;
+      --deep-blue: #0D1B2A;
+      --black: #000000;
+    }
+
+    * {
       margin: 0;
-      background: linear-gradient(to bottom, #000000, #0d1b2a);
-      overflow: hidden;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: radial-gradient(circle at center, var(--black) 0%, var(--deep-blue) 100%);
       font-family: 'Orbitron', sans-serif;
-      color: #ffd700;
+      color: var(--gold);
+      overflow: hidden;
     }
 
     .space {
       position: relative;
       width: 100vw;
       height: 100vh;
-      overflow: hidden;
+      perspective: 1000px;
     }
 
     .capsule {
       position: absolute;
-      width: 100px;
-      height: 100px;
-      background: #1e1e1e;
-      border: 2px solid #ffd700;
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
+      border: 2px solid var(--gold);
       clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
       display: flex;
       justify-content: center;
       align-items: center;
+      color: var(--gold);
+      font-size: 0.9rem;
+      text-align: center;
       cursor: pointer;
-      transition: transform 0.3s ease;
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+      animation: float 6s infinite ease-in-out;
     }
 
     .capsule:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 20px #ff6f00;
+      transform: scale(1.1) rotateY(10deg);
+      box-shadow: 0 0 20px var(--orange);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
 
     .popup {
@@ -45,30 +67,55 @@
       left: 50%;
       transform: translate(-50%, -50%);
       background: #000;
-      color: #ffd700;
-      padding: 20px;
-      border: 2px solid #ff6f00;
+      color: var(--gold);
+      padding: 30px;
+      border: 2px solid var(--orange);
       display: none;
       z-index: 10;
       max-width: 80%;
       text-align: center;
+      box-shadow: 0 0 30px var(--gold);
     }
 
     .close-btn {
-      margin-top: 10px;
-      background: #ff6f00;
+      margin-top: 20px;
+      background: var(--orange);
       color: #000;
       border: none;
-      padding: 5px 10px;
+      padding: 10px 20px;
+      font-weight: bold;
       cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: twinkle 5s infinite ease-in-out;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
     }
   </style>
 </head>
 <body>
   <div class="space" id="space">
-    <div class="capsule" style="top: 20%; left: 30%;" onclick="openCapsule('“Ideas are stars — let them shine.”')"></div>
-    <div class="capsule" style="top: 50%; left: 60%;" onclick="openCapsule('Tier Locked — Upgrade to Silver')"></div>
-    <div class="capsule" style="top: 70%; left: 40%;" onclick="openCapsule('“Secrets are seeds of wisdom.”')"></div>
+    <div class="capsule" style="top: 20%; left: 30%;" onclick="openCapsule('“Ideas are stars — let them shine.”')">Bronze</div>
+    <div class="capsule" style="top: 50%; left: 60%;" onclick="openCapsule('Tier Locked — Upgrade to Silver')">Silver</div>
+    <div class="capsule" style="top: 70%; left: 40%;" onclick="openCapsule('“Secrets are seeds of wisdom.”')">Gold</div>
+    <div class="stars" id="stars"></div>
   </div>
 
   <div class="popup" id="popup">
@@ -84,6 +131,17 @@
 
     function closePopup() {
       document.getElementById('popup').style.display = 'none';
+    }
+
+    // Generate stars
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 150; i++) {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      star.style.top = Math.random() * 100 + '%';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+      starsContainer.appendChild(star);
     }
   </script>
 </body>
