@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>إنشاء كبسولة — Trox</title>
+<style>
+  body{font-family:"Cairo",sans-serif;background:linear-gradient(180deg,#000015,#000);color:#eaffff;margin:0;padding:18px}
+  .card{max-width:720px;margin:20px auto;padding:16px;background:rgba(8,10,16,0.96);border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+  label{display:block;color:#9fb0c7;margin-top:8px}
+  input,textarea,select{width:100%;padding:10px;border-radius:8px;margin-top:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff}
+  .row{display:flex;gap:8px;margin-top:12px}
+  .btn{padding:10px;border-radius:8px;border:none;cursor:pointer;font-weight:800}
+  .primary{background:linear-gradient(90deg,#00d4ff,#9b6aff);color:#001}
+  .muted{color:#9fb0c7;margin-top:10px}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h2>إنشاء كبسولة جديدة</h2>
+    <label>اسمك (اختياري)</label>
+    <input id="name" placeholder="اسمك أو لقبك">
+    <label>عنوان للكبسولة</label>
+    <input id="title" placeholder="مثال: رسالة لابني في المستقبل">
+    <label>رسالتك</label>
+    <textarea id="message" rows="6" placeholder="اكتب رسالتك..."></textarea>
+    <label>رتبة الكبسولة</label>
+    <select id="rank">
+      <option value="common">عادية — $1</option>
+      <option value="special">خاصة — $5</option>
+      <option value="legend">خالدة — $20</option>
+    </select>
+
+    <div class="row">
+      <button id="manualPay" class="btn primary">ادفع يدويًا (Vodafone Cash)</button>
+      <button id="saveLocal" class="btn">احفظ محليًا (تجريبي)</button>
+    </div>
+
+    <div id="info" class="muted">طريقة سريعة: بعد الدفع أرسل لقطة شاشة للحساب لتفعيل الكبسولة يدويًا.</div>
+  </div>
+
+<script>
+  document.getElementById('manualPay').onclick = ()=>{
+    const rank = document.getElementById('rank').value;
+    // Example Vodafone Cash number — استبدله برقمك
+    const number = '010XXXXXXXX';
+    alert('ادفع المبلغ على Vodafone Cash إلى الرقم:\n'+number+'\n\nبعد الدفع أرسل لقطة شاشة عبر WhatsApp لتفعيل كبسولتك.');
+  };
+
+  document.getElementById('saveLocal').onclick = ()=>{
+    const name = document.getElementById('name').value.trim();
+    const title = document.getElementById('title').value.trim();
+    const msg = document.getElementById('message').value.trim();
+    const rank = document.getElementById('rank').value;
+    if(!msg){ alert('اكتب رسالة أولاً'); return; }
+    const arr = JSON.parse(localStorage.getItem('trox_capsules')||'[]');
+    arr.push({ name, title, message: msg, rank, ts: Date.now() });
+    localStorage.setItem('trox_capsules', JSON.stringify(arr));
+    alert('تم حفظ الكبسولة محلياً كنسخة تجريبية ✅');
+    location.href = 'space.html';
+  };
+</script>
+</body>
+</html>
