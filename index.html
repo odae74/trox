@@ -1,245 +1,73 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Trox — كبسولة تروكس الخالدة</title>
-
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trox — الهالة</title>
+<meta name="description" content="Trox — الكبسولة الخالدة — ابدأ رحلتك">
 <style>
-  :root{
-    --bg-1: #030214;
-    --bg-2: #06031a;
-    --accent: #6EE7FF;    /* cyan */
-    --accent-2: #A78BFA;  /* violet */
-    --muted: #9fb0c7;
-    --glass: rgba(255,255,255,0.04);
-    --card-bg: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  :root{--accent:#00d4ff;--accent2:#9b6aff;--bg:#000010}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#000015,#000);font-family:"Cairo",system-ui,Arial;color:#fff}
+  .wrap{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:18px;text-align:center}
+  .halo{
+    width:86vw; max-width:520px; height:86vw; max-height:520px;
+    border-radius:999px; display:flex;align-items:center;justify-content:center;
+    background: radial-gradient(circle at 30% 30%, rgba(0,212,255,0.12), rgba(155,106,255,0.06) 40%, rgba(255,255,255,0.02) 70%);
+    box-shadow:0 12px 60px rgba(0,0,0,0.6), inset 0 0 40px rgba(0,212,255,0.06);
+    border:1px solid rgba(255,255,255,0.04);
   }
-
-  html,body{height:100%;margin:0;font-family:"Cairo",sans-serif;background:radial-gradient(1200px 600px at 20% 20%,var(--bg-1),var(--bg-2));color:#eaf6ff;-webkit-font-smoothing:antialiased;overflow:hidden}
-
-  /* full-screen layout */
-  .wrap{
-    height:100%;
-    display:grid;
-    grid-template-rows: 1fr auto;
-    place-items:center;
-    padding:28px;
-    gap:20px;
-  }
-
-  /* background canvas fills whole viewport */
-  canvas.bgCanvas{
-    position:fixed; inset:0; width:100%; height:100%; z-index:0;
-    display:block;
-  }
-
-  /* hero card */
-  .hero{
-    position:relative; z-index:5; width:min(980px,94%); max-width:1100px;
-    display:grid; grid-template-columns: 1fr 420px; gap:28px; align-items:center;
-    background:var(--card-bg); border-radius:16px; padding:28px; box-shadow:0 14px 50px rgba(2,6,23,0.6);
-    backdrop-filter: blur(10px);
-  }
-
-  /* left column: title + description */
-  .hero-left{
-    padding-right:8px;
-  }
-  .brand{
-    display:flex; align-items:center; gap:12px;
-    margin-bottom:10px;
-  }
-  .logo {
-    width:64px; height:64px; border-radius:14px;
-    background: radial-gradient(circle at 30% 25%, var(--accent), var(--accent-2));
-    box-shadow: 0 6px 20px rgba(106, 84, 255, 0.16), inset 0 -6px 18px rgba(0,0,0,0.25);
-    display:flex; align-items:center; justify-content:center; color:#001; font-weight:800;
-    font-family:"Rajdhani",sans-serif; font-size:20px;
-  }
-  h1{
-    margin:0 0 10px; font-family:"Rajdhani",sans-serif; font-size:2.1rem; color:var(--accent);
-    letter-spacing:0.6px;
-  }
-  p.lead{
-    margin:0 0 18px; color:var(--muted); line-height:1.6; font-size:1.05rem;
-  }
-
-  /* hero right: CTA + preview */
-  .hero-right{
-    display:flex; flex-direction:column; gap:12px; align-items:center;
-  }
-  .cta {
-    display:flex; gap:12px; align-items:center;
-  }
-  .btn {
-    background: linear-gradient(90deg,var(--accent),var(--accent-2));
-    border: none; padding:12px 18px; border-radius:999px; font-weight:700; color:#001; cursor:pointer;
-    box-shadow:0 8px 30px rgba(110,231,255,0.08);
-    transition: transform .18s ease, box-shadow .18s ease;
-  }
-  .btn.secondary {
-    background:transparent; border:1px solid rgba(255,255,255,0.06); color:#dff; padding:10px 14px;
-  }
-  .btn:active{ transform:translateY(2px) }
-
-  /* preview panel (small) */
-  .preview {
-    width:100%; max-width:360px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03); box-shadow:0 6px 20px rgba(0,0,0,0.6); text-align:center;
-  }
-  .preview .space-mini{ width:100%; height:180px; border-radius:10px; background: linear-gradient(180deg,#020014,#000012); overflow:hidden; position:relative; }
-  .preview .mini-capsule{ position:absolute; width:64px; height:64px; left:40%; top:30%; transform:translate(-50%,-50%); border-radius:12px; background:linear-gradient(145deg,#2b0066,#5e3fff); box-shadow:0 12px 30px rgba(94,63,255,0.18); display:flex;align-items:center;justify-content:center; font-weight:800; color:#fff; }
-  .preview .hint{ margin-top:10px; color:var(--muted); font-size:0.92rem; }
-
-  /* footer small */
-  footer.app-foot{ width:100%; text-align:center; color:rgba(255,255,255,0.6); font-size:0.85rem; z-index:5; padding:10px 0; }
-
-  /* halo animation around CTA */
-  .halo-ring{
-    position:absolute; inset:auto auto 18px 18px; z-index:4; pointer-events:none;
-    width:120px; height:120px; right:42px; bottom:42px; border-radius:50%;
-    background: radial-gradient(circle at 40% 40%, rgba(110,231,255,0.18), transparent 30%);
-    filter: blur(18px); opacity:0; transform:scale(.8);
-    animation: ringPop 1.6s ease .3s forwards;
-  }
-  @keyframes ringPop{ to { opacity:1; transform:scale(1); } }
-
-  /* responsive */
-  @media (max-width:960px){
-    .hero{ grid-template-columns: 1fr; text-align:center; padding:20px;}
-    .hero-left{ padding:0; }
-    .hero-right{ order:-1 }
-    .logo{ margin: 0 auto }
-  }
+  h1{font-size:clamp(18px,6vw,36px);margin:0;color:var(--accent);letter-spacing:0.6px}
+  p{color:rgba(255,255,255,0.85);max-width:520px;margin-top:10px}
+  .actions{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .btn{padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--accent);font-weight:700;cursor:pointer}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#001;box-shadow:0 12px 30px rgba(110,231,255,0.06)}
+  .skip{position:fixed;top:12px;left:12px;color:#9fb0c7;font-weight:700}
+  /* small text */
+  .small{margin-top:12px;color:#9fb0c7;font-size:14px}
+  @media(min-width:900px){ .halo{width:520px;height:520px} }
 </style>
 </head>
 <body>
-
-  <!-- background canvas (stars + subtle nebula) -->
-  <canvas class="bgCanvas" id="bgCanvas" aria-hidden="true"></canvas>
-
-  <main class="wrap" role="main">
-    <section class="hero" aria-labelledby="heroTitle">
-      <div class="hero-left">
-        <div class="brand">
-          <div class="logo" aria-hidden="true">TRX</div>
-          <div>
-            <div style="font-size:0.92rem;color:var(--muted)">مشروع تجريبي</div>
-            <div style="font-weight:800;color:#fff">Trox — الكبسولة الخالدة</div>
-          </div>
-        </div>
-
-        <h1 id="heroTitle">اكتب رسالة — أطلق كبسولة خالدة في الفضاء</h1>
-        <p class="lead">احتفظ بلحظة، شارك ذكرى، أو اكتب رسالة للمستقبل. منصة Trox تحفظ كبسولاتك وتعرضها في فضاء تفاعلي يخبر عن قصتك.</p>
-
-        <div class="cta" style="gap:12px;">
-          <button id="enterHalo" class="btn">✨ ابدأ الرحلة</button>
-          <button id="exploreBtn" class="btn secondary" title="استكشاف الكبسولات">استكشف الفضاء</button>
-        </div>
-
-        <div class="halo-ring" aria-hidden="true"></div>
+  <a class="skip" href="space.html">تخطي</a>
+  <div class="wrap" role="main">
+    <div class="halo" id="halo">
+      <div>
+        <h1>⚡ كبسولة Trox الخالدة ⚡</h1>
+        <p style="margin-top:8px">أطلق رسالتك، اجعلها خالدة في الفضاء — تجربة محمولة وسلسة.</p>
       </div>
+    </div>
 
-      <aside class="hero-right" aria-hidden="false">
-        <div class="preview" aria-hidden="true">
-          <div class="space-mini" role="img" aria-label="عرض صغير للفضاء">
-            <div class="mini-capsule">💠</div>
-          </div>
-          <div class="hint">هيا — اضغط <strong>ابدأ الرحلة</strong> للانتقال إلى الهالة وتفعيل الفضاء.</div>
-        </div>
+    <div class="actions">
+      <button class="btn" id="btnAuth">🔐 تسجيل / دخول</button>
+      <button class="btn primary" id="btnEnter">🚀 ادخل الفضاء</button>
+    </div>
 
-        <div style="font-size:0.9rem;color:var(--muted);margin-top:8px">تسجيل الدخول متاح لإطلاق كبسولات مسجلة • Firestore جاهز</div>
-      </aside>
-    </section>
-
-    <footer class="app-foot">© Trox 2025 — مشروع تجريبي · <span style="color:var(--muted)">Odae Waked</span></footer>
-  </main>
+    <div class="small">تصميم موبايل أولًا — يدعم كلا الجهازين</div>
+  </div>
 
 <script>
-/* ======================
-   Background animation
-   stars + gentle nebula gradient movement
-   ====================== */
-(function(){
-  const cvs = document.getElementById('bgCanvas');
-  const ctx = cvs.getContext('2d');
-  let W = innerWidth, H = innerHeight;
-  cvs.width = W; cvs.height = H;
+  // halo animation then navigate
+  const halo = document.getElementById('halo');
+  const btnEnter = document.getElementById('btnEnter');
+  const btnAuth = document.getElementById('btnAuth');
 
-  // create stars and a subtle moving cloud (simple)
-  const stars = Array.from({length:180}, ()=>({
-    x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.6+0.2, s: Math.random()*0.6+0.2
-  }));
+  function doHalo() {
+    // scale + glow then navigate
+    halo.animate([
+      { transform: 'scale(1)', boxShadow: '0 12px 60px rgba(0,0,0,0.6)' },
+      { transform: 'scale(1.06)', boxShadow: '0 30px 120px rgba(0,212,255,0.12)' },
+      { transform: 'scale(0.24)', opacity: 0 }
+    ], { duration: 2200, easing: 'cubic-bezier(.2,.9,.3,1)' });
 
-  // a simple "nebula" layer (moving gradient blobs)
-  const blobs = Array.from({length:3}, (_,i)=>({
-    x: W*(0.2+0.3*i), y: H*0.35, r: Math.min(W,H)*0.6*(0.4+Math.random()*0.3), phase: Math.random()*Math.PI*2, speed: 0.0008+Math.random()*0.0012
-  }));
-
-  function resize(){
-    W = innerWidth; H = innerHeight;
-    cvs.width = W; cvs.height = H;
+    setTimeout(()=> location.href='space.html', 2200);
   }
-  addEventListener('resize', resize);
 
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    // dark background base
-    const g = ctx.createLinearGradient(0,0,W,H);
-    g.addColorStop(0, '#030014');
-    g.addColorStop(1, '#000012');
-    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  btnEnter.addEventListener('click', ()=> doHalo());
+  btnAuth.addEventListener('click', ()=> location.href='auth.html');
 
-    // nebula blobs
-    blobs.forEach((b, idx)=>{
-      b.phase += b.speed * (idx+1);
-      const gx = ctx.createRadialGradient(b.x + Math.sin(b.phase)*80, b.y + Math.cos(b.phase)*60, b.r*0.05, b.x, b.y, b.r);
-      if(idx===0) { gx.addColorStop(0, 'rgba(110,231,255,0.06)'); gx.addColorStop(1, 'transparent'); }
-      else if(idx===1){ gx.addColorStop(0,'rgba(167,139,250,0.06)'); gx.addColorStop(1,'transparent'); }
-      else { gx.addColorStop(0,'rgba(255,200,120,0.02)'); gx.addColorStop(1,'transparent'); }
-      ctx.fillStyle = gx;
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-      ctx.fill();
-    });
-
-    // stars
-    ctx.globalCompositeOperation = 'lighter';
-    stars.forEach(s=>{
-      s.y += s.s*0.2;
-      if(s.y > H) s.y = 0;
-      ctx.globalAlpha = 0.9*s.s;
-      ctx.beginPath();
-      ctx.fillStyle = '#cfffff';
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
-      ctx.fill();
-    });
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = 'source-over';
-
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-
-/* ======================
-   Button behavior
-   ====================== */
-document.getElementById('enterHalo').addEventListener('click', ()=>{
-  // animate subtle scale/flash then go to halo page
-  const ring = document.querySelector('.halo-ring');
-  ring.style.filter = 'blur(8px) saturate(1.2)';
-  ring.animate([{transform:'scale(1)'},{transform:'scale(1.6)'},{opacity:0}], {duration:700, easing:'cubic-bezier(.2,.9,.2,1)'});
-  setTimeout(()=> location.href = 'halo.html', 650);
-});
-
-// explore button -> direct to space (skip halo)
-document.getElementById('exploreBtn').addEventListener('click', ()=> location.href = 'space.html');
-
+  // auto start halo after short delay
+  setTimeout(()=> doHalo(), 700);
 </script>
 </body>
 </html>
