@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>كبسولة تروكس الخالدة ⚜️</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #0b0b0f 0%, #000 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-family: 'Cairo', sans-serif;
+      color: #fff;
+    }
+
+    .halo {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.8), transparent 70%);
+      box-shadow: 0 0 40px 20px rgba(255, 215, 0, 0.2);
+      animation: pulse 3s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.9;
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+    }
+
+    .title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin-top: 40px;
+      text-align: center;
+      background: linear-gradient(90deg, #ffd700, #fff, #ffd700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0;
+      animation: fadeIn 2s ease forwards 1s;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .enter-btn {
+      margin-top: 60px;
+      padding: 12px 30px;
+      font-size: 1.2rem;
+      background: linear-gradient(90deg, #ffd700, #f6e05e);
+      color: #000;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+      opacity: 0;
+      transition: 0.4s;
+      transform: translateY(20px);
+      animation: showBtn 1s ease forwards 3.5s;
+    }
+
+    @keyframes showBtn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .enter-btn:hover {
+      background: linear-gradient(90deg, #fff5a1, #ffd700);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 1);
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 600px) {
+      .halo {
+        width: 150px;
+        height: 150px;
+      }
+      .title {
+        font-size: 1.4rem;
+      }
+      .enter-btn {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="halo"></div>
+  <div class="title">⚜️ كبسولة تروكس الخالدة ⚜️</div>
+  <button class="enter-btn" onclick="enterSpace()">ادخل إلى الفضاء 🚀</button>
+
+  <script>
+    function enterSpace() {
+      // عند الضغط على الزر، الانتقال إلى صفحة الفضاء
+      window.location.href = "space.html";
+    }
+  </script>
+</body>
+</html>
