@@ -1,426 +1,276 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Trox — فضاء الكبسولات الخالدة</title>
-<meta name="description" content="Trox — فضاء تفاعلي لعرض كبسولات خالدة، متجاوب للهاتف والكمبيوتر.">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trox — الفضاء</title>
+<meta name="description" content="فضاء الكبسولات — تجربة موبايل أولًا">
 <style>
-:root{
-  --accent:#00d4ff; --accent2:#9b6aff; --muted:#9fb0c7; --bg:#000010;
-  --glass: rgba(255,255,255,0.03);
-  --ui-pad: 10px;
-  font-family: "Cairo", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;background:linear-gradient(180deg,#000010,#000);color:#eaf6ff;overflow:hidden;-webkit-font-smoothing:antialiased}
-#canvas-wrap{position:fixed;inset:0;z-index:0;background:var(--bg)}
-/* TOP BAR */
-#topbar{position:fixed;left:12px;right:12px;top:12px;z-index:80;display:flex;justify-content:space-between;align-items:center;gap:12px;pointer-events:none}
-.brand{display:flex;gap:10px;align-items:center;pointer-events:auto}
-.mark{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#001;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-.brand .label{line-height:1}
-.actions{display:flex;gap:8px;pointer-events:auto}
-.btn{padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:var(--glass);color:var(--accent);font-weight:700;cursor:pointer}
-.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#001;box-shadow:0 10px 30px rgba(110,231,255,0.06)}
-
-/* Pointer hint */
-#hint{position:fixed;left:50%;top:86px;transform:translateX(-50%);z-index:78;background:rgba(0,0,0,0.45);color:var(--muted);padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);font-weight:600;pointer-events:auto}
-
-/* Overlay message */
-#overlay{position:fixed;right:50%;top:52%;transform:translate(50%,-50%);z-index:200;min-width:320px;max-width:760px;background:linear-gradient(180deg,rgba(4,8,15,0.98),rgba(2,4,10,0.98));color:#eaffff;border-radius:14px;padding:18px;border:1px solid rgba(0,220,255,0.12);box-shadow:0 24px 60px rgba(0,0,0,0.7);display:none}
-#overlay h3{margin:0 0 8px;color:var(--accent)}
-#overlay .meta{color:var(--muted);font-size:0.9rem;margin-bottom:10px}
-#overlay p{margin:0;white-space:pre-wrap;line-height:1.6}
-#overlay .controls{margin-top:12px;display:flex;justify-content:flex-end}
-#overlay button{padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
-#overlay .close{background:var(--accent);color:#001}
-
-/* Login modal (simple) */
-#loginModal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:210;background:linear-gradient(180deg,rgba(5,8,12,0.98),rgba(2,3,6,0.98));border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.04);display:none;min-width:320px}
-#loginModal label{display:block;margin-top:8px;color:var(--muted);font-size:0.9rem}
-#loginModal input{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#fff;margin-top:6px;box-sizing:border-box}
-#loginModal .row{display:flex;gap:8px;margin-top:10px}
-
-/* Legend */
-#legend{position:fixed;left:12px;bottom:12px;z-index:80;color:var(--muted);background:rgba(255,255,255,0.01);padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.02)}
-
-/* responsive adjustments */
-@media (max-width:800px){
-  .mark{width:40px;height:40px}
-  #overlay{right:8px;left:8px;transform:none;top:52%}
-  #hint{top:110px;font-size:13px}
-}
+  html,body{height:100%;margin:0;background:#000;font-family:"Cairo",system-ui;color:#eaffff;overflow:hidden}
+  #wrap{position:fixed;inset:0;z-index:0}
+  /* UI */
+  #ui-top{position:fixed;left:12px;right:12px;top:12px;z-index:60;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+  .brand{pointer-events:auto;display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.02);padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+  .mark{width:40px;height:40px;border-radius:8px;background:linear-gradient(90deg,#00d4ff,#9b6aff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#001}
+  .actions{pointer-events:auto;display:flex;gap:8px}
+  .btn{padding:8px 12px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);color:#00d4ff;font-weight:700;cursor:pointer}
+  .btn.primary{background:linear-gradient(90deg,#00d4ff,#9b6aff);color:#001}
+  #hint{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;background:rgba(0,0,0,0.45);padding:8px 12px;border-radius:999px;color:#9fb0c7;pointer-events:auto;font-weight:700}
+  /* overlay */
+  #overlay{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:80;min-width:280px;max-width:90vw;background:linear-gradient(180deg,rgba(6,10,16,0.98),rgba(2,4,8,0.98));border-radius:12px;padding:14px;border:1px solid rgba(0,212,255,0.08);display:none}
+  #overlay h3{margin:0;color:#00d4ff}
+  #overlay p{white-space:pre-wrap;margin-top:8px;color:#dbefff}
+  #overlay .meta{color:#9fb0c7;font-size:13px;margin-top:6px}
+  #overlay .close{margin-top:10px;padding:8px 12px;border-radius:8px;border:none;background:#00d4ff;color:#001;font-weight:800;cursor:pointer}
+  @media(min-width:900px){
+    #overlay{max-width:720px}
+  }
 </style>
 </head>
 <body>
-  <div id="canvas-wrap" aria-hidden="true"></div>
+  <div id="wrap" aria-hidden="true"></div>
 
-  <div id="topbar" role="navigation" aria-label="ناف بار">
-    <div class="brand">
-      <div class="mark" aria-hidden="true">TRX</div>
-      <div class="label">
-        <div style="font-size:12px;color:var(--muted)">مشروع تجريبي</div>
-        <div style="font-weight:800">Trox — الكبسولة الخالدة</div>
+  <div id="ui-top" role="navigation">
+    <div class="brand" aria-label="Trox">
+      <div class="mark">TRX</div>
+      <div style="line-height:1">
+        <div style="font-size:12px;color:#9fb0c7">مشروع تجريبي</div>
+        <div style="font-weight:800">Trox</div>
       </div>
     </div>
     <div class="actions">
-      <button id="openLogin" class="btn">🔐 تسجيل / دخول</button>
-      <button id="openCreate" class="btn primary">🚀 أطلق كبسولتك</button>
+      <button class="btn" id="btnAuth">🔐</button>
+      <button class="btn primary" id="btnCreate">🚀</button>
     </div>
   </div>
 
-  <div id="hint">اسحب لتحريك المشهد — اضغط على كبسولة لفتح رسالتها</div>
+  <div id="hint">اسحب لتحريك المشهد • اضغط لكبسولة</div>
+
   <div id="overlay" role="dialog" aria-modal="true">
-    <h3 id="ovTitle">عنوان الكبسولة</h3>
-    <div class="meta" id="ovMeta">المرسل • الرتبة • التاريخ</div>
-    <p id="ovBody">نص الكبسولة...</p>
-    <div class="controls"><button id="ovClose" class="close">إغلاق</button></div>
+    <h3 id="ovTitle">...</h3>
+    <div class="meta" id="ovMeta"></div>
+    <p id="ovBody"></p>
+    <button class="close" id="ovClose">إغلاق</button>
   </div>
 
-  <div id="loginModal" role="dialog" aria-modal="true">
-    <h3>تسجيل / تسجيل دخول</h3>
-    <label for="email">البريد الإلكتروني</label>
-    <input id="email" type="email" placeholder="you@example.com" />
-    <label for="password">كلمة المرور</label>
-    <input id="password" type="password" placeholder="••••••••" />
-    <div class="row">
-      <button id="btnRegister" class="btn">إنشاء حساب</button>
-      <button id="btnSignIn" class="btn">تسجيل الدخول</button>
-    </div>
-    <div style="margin-top:8px;color:var(--muted);font-size:0.9rem">سجل لحفظ كبسولاتك وإطلاق كبسولات خاصة.</div>
-  </div>
+  <!-- three.js r128 and OrbitControls (non-module) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
 
-  <div id="legend">متحكم: اسحب/لمس للتدوير • اضغط للكبسولة • قرص للعجلة للتكبير</div>
-
-  <!-- Module script -->
-  <script type="module">
-  // ---------- IMPORTS ----------
-  import * as THREE from 'https://unpkg.com/three@0.154.0/build/three.module.js';
-  import { OrbitControls } from 'https://unpkg.com/three@0.154.0/examples/jsm/controls/OrbitControls.js';
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-  import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-
-  // ---------- CONFIG ----------
-  const FIREBASE_ENABLED = true; // ضع false للاختبار المحلي بدون Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyCR8AiukqMEGOFDsjhv7tsFFFLDM5gWpu4",
-    authDomain: "trox-capsules.firebaseapp.com",
-    projectId: "trox-capsules",
-    storageBucket: "trox-capsules.firebasestorage.app",
-    messagingSenderId: "104606988275",
-    appId: "1:104606988275:web:24d2a719dd863357660486",
-    measurementId: "G-MEKWLRWGDS"
-  };
-
-  // ---------- DOM ----------
-  const container = document.getElementById('canvas-wrap');
+  <script>
+  // mobile-first scene — optimized
+  const container = document.getElementById('wrap');
   const overlay = document.getElementById('overlay');
   const ovTitle = document.getElementById('ovTitle'), ovMeta = document.getElementById('ovMeta'), ovBody = document.getElementById('ovBody');
   const ovClose = document.getElementById('ovClose');
-  const loginModal = document.getElementById('loginModal');
-  const openLoginBtn = document.getElementById('openLogin');
-  const openCreateBtn = document.getElementById('openCreate');
-  const btnRegister = document.getElementById('btnRegister'), btnSignIn = document.getElementById('btnSignIn');
+  const btnAuth = document.getElementById('btnAuth'), btnCreate = document.getElementById('btnCreate');
 
-  // ---------- RUNTIME ----------
   let renderer, scene, camera, controls, raycaster;
-  const capsuleEntries = new Map(); // id => {mesh, data}
-  const transientParticles = [];
+  const capsules = [];
+  let particles = [];
   let mouse = new THREE.Vector2();
-  let prevTime = performance.now();
+  let isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints>0;
+  const isMobile = window.innerWidth < 760 || isTouch;
 
   init();
   animate();
 
-  // ---------- helpers ----------
-  function isMobile(){ return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 760; }
-
   function init(){
-    // renderer (adaptive)
-    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-    renderer = new THREE.WebGLRenderer({ antialias: !isMobile(), alpha: true, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(pixelRatio);
+    renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.setClearColor(0x000010, 1);
     container.appendChild(renderer.domElement);
 
-    // scene & camera
-    scene = new THREE.Scene(); scene.background = new THREE.Color(0x000010);
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 5000);
-    camera.position.set(0, 8, isMobile() ? 36 : 28);
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 0.1, 2000);
+    camera.position.set(0, 6, isMobile ? 36 : 28);
 
     // lights
     const hemi = new THREE.HemisphereLight(0x8899ff, 0x080820, 0.6); scene.add(hemi);
-    const dir = new THREE.DirectionalLight(0xffffff, 0.8); dir.position.set(10,20,10); scene.add(dir);
-    const glow = new THREE.PointLight(0x00d4ff, 0.12, 200); scene.add(glow);
+    const dir = new THREE.DirectionalLight(0xffffff, 0.9); dir.position.set(10,20,10); scene.add(dir);
 
-    // fog
-    scene.fog = new THREE.FogExp2(0x000018, 0.0012);
-
-    // starfield (reduced on mobile)
-    const starCount = isMobile() ? 600 : 1200;
-    const positions = new Float32Array(starCount*3);
+    // stars (fewer on mobile)
+    const starCount = isMobile ? 600 : 1200;
+    const pos = new Float32Array(starCount*3);
     for(let i=0;i<starCount;i++){
-      positions[i*3] = (Math.random()-0.5)*2000;
-      positions[i*3+1] = (Math.random()-0.5)*2000;
-      positions[i*3+2] = (Math.random()-0.5)*2000;
+      pos[i*3] = (Math.random()-0.5)*2000;
+      pos[i*3+1] = (Math.random()-0.5)*2000;
+      pos[i*3+2] = (Math.random()-0.5)*2000;
     }
-    const starsGeo = new THREE.BufferGeometry(); starsGeo.setAttribute('position', new THREE.BufferAttribute(positions,3));
-    const starsMat = new THREE.PointsMaterial({ color:0xbfefff, size: isMobile()?0.9:0.8, transparent:true, opacity:0.75 });
-    const stars = new THREE.Points(starsGeo, starsMat); scene.add(stars);
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    const m = new THREE.PointsMaterial({ color:0xbfefff, size: isMobile?0.9:0.8, transparent:true, opacity:0.8 });
+    const stars = new THREE.Points(g,m); scene.add(stars);
 
-    // controls (OrbitControls tuned for mobile)
-    controls = new OrbitControls(camera, renderer.domElement);
+    // controls tuned for mobile
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true; controls.dampingFactor = 0.09;
-    controls.rotateSpeed = isMobile()?0.35:0.6; controls.panSpeed = 0.5; controls.zoomSpeed = 0.9;
+    controls.rotateSpeed = isMobile ? 0.35 : 0.6;
+    controls.zoomSpeed = isMobile ? 0.9 : 0.8;
     controls.minDistance = 6; controls.maxDistance = 220;
     controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
 
-    // raycaster
     raycaster = new THREE.Raycaster();
 
-    // events
+    // make capsules (fewer on mobile)
+    const count = isMobile ? 9 : 20;
+    for(let i=0;i<count;i++){
+      const cap = makeHexCapsule(i);
+      scene.add(cap);
+      capsules.push(cap);
+    }
+
     window.addEventListener('resize', onResize);
     renderer.domElement.addEventListener('pointerdown', onPointerDown, {passive:false});
     renderer.domElement.addEventListener('touchstart', onPointerDown, {passive:false});
-    ovClose.addEventListener('click', hideOverlay);
-    openLoginBtn.addEventListener('click', ()=> loginModal.style.display = 'block');
-    openCreateBtn.addEventListener('click', ()=> location.href='كبسولة.html');
-
-    // Firebase init and realtime
-    if(FIREBASE_ENABLED){
-      try {
-        initializeApp(firebaseConfig);
-        const db = getFirestore();
-        const auth = getAuth();
-        onAuthStateChanged(auth, user=> openLoginBtn.textContent = user ? 'حسابك ✓' : '🔐 تسجيل / دخول');
-        // listen capsules
-        const q = query(collection(db,'capsules'), orderBy('ts','desc'));
-        onSnapshot(q, snap=>{
-          snap.docChanges().forEach(ch=>{
-            const id = ch.doc.id; const data = ch.doc.data();
-            if(data.ts && data.ts.seconds) data.ts = data.ts.seconds * 1000;
-            if(ch.type==='added') addCapsuleEntry(id, data);
-            if(ch.type==='modified') updateCapsuleEntry(id, data);
-            if(ch.type==='removed') removeCapsuleEntry(id);
-          });
-        }, err => { console.error('firestore snapshot err', err); setTimeout(createDemoCapsules,200); });
-      } catch(e){
-        console.error('Firebase init failed', e); setTimeout(createDemoCapsules,200);
-      }
-    } else {
-      createDemoCapsules();
-    }
+    ovClose.addEventListener('click', ()=> overlay.style.display='none');
+    btnAuth.addEventListener('click', ()=> location.href='auth.html');
+    btnCreate.addEventListener('click', ()=> location.href='create.html');
   }
 
-  // ---------- Capsule creation ----------
-  function createCapsuleMesh(data){
-    // rank colors
-    const rank = data && data.rank ? data.rank.toString().toLowerCase() : 'common';
-    let col=0x44b3ff, trim=0x0b3a55;
-    if(rank.includes('special')||rank.includes('خاصة')){ col=0xb36aff; trim=0x2b0f3a; }
-    if(rank.includes('legend')||rank.includes('خالدة')||rank.includes('legendary')){ col=0xffd166; trim=0x3a2a00; }
+  function makeHexCapsule(i){
+    // colors by index (demo ranks)
+    const rank = (i%7===0)? 'legend' : (i%3===0)? 'special' : 'common';
+    const col = rank==='legend' ? 0xffd166 : (rank==='special' ? 0xb36aff : 0x44b3ff);
 
-    // hex prism geometry
-    const geom = new THREE.CylinderGeometry(1.2,1.2,1.8,6,1,false); geom.rotateX(Math.PI/2);
-    const mat = new THREE.MeshStandardMaterial({ color: col, metalness: 0.9, roughness: 0.22, emissive:0x000000, emissiveIntensity: 0.12 });
+    const geom = new THREE.CylinderGeometry(1.2,1.2,1.8,6,1,false);
+    geom.rotateX(Math.PI/2);
+    const mat = new THREE.MeshStandardMaterial({ color:col, metalness:0.85, roughness:0.24, emissive:0x000000 });
+    const mesh = new THREE.Mesh(geom, mat);
 
-    const prism = new THREE.Mesh(geom, mat);
-    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geom), new THREE.LineBasicMaterial({ color:0x000000, transparent:true, opacity:0.12 }));
-
-    // engraved plate pattern via canvas texture
-    const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 256;
-    const ctx = canvas.getContext('2d'); ctx.clearRect(0,0,256,256);
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 2;
-    for(let i=0;i<6;i++){ ctx.strokeRect(18+i*8,18+i*8,220-i*16,220-i*16); }
-    // add small emblem
-    ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign='center'; ctx.fillText('◊',128,140);
-    const tex = new THREE.CanvasTexture(canvas); tex.encoding = THREE.sRGBEncoding;
-
-    const plate = new THREE.Mesh(new THREE.CircleGeometry(0.52, 32), new THREE.MeshStandardMaterial({ map: tex, metalness:0.6, roughness:0.25, color:0x001833, emissive:0x002233, emissiveIntensity:0.12, side: THREE.DoubleSide }));
+    // plate decoration
+    const canvas = document.createElement('canvas'); canvas.width=256; canvas.height=256;
+    const ctx = canvas.getContext('2d'); ctx.clearRect(0,0,256,256); ctx.strokeStyle='rgba(255,255,255,0.06)';
+    for(let k=0;k<5;k++){ ctx.strokeRect(18+k*8,18+k*8,220-k*16,220-k*16); }
+    ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.font='bold 36px sans-serif'; ctx.textAlign='center'; ctx.fillText('◊',128,150);
+    const tex = new THREE.CanvasTexture(canvas);
+    const plate = new THREE.Mesh(new THREE.CircleGeometry(0.5,32), new THREE.MeshStandardMaterial({ map:tex, metalness:0.6, roughness:0.25, side:THREE.DoubleSide }));
     plate.position.set(0,0,0.95); plate.rotateX(Math.PI/2);
-
-    // subtle glow plane
-    const glow = new THREE.Mesh(new THREE.PlaneGeometry(2.6,2.6), new THREE.MeshBasicMaterial({ color: col, transparent:true, opacity:0.06, blending: THREE.AdditiveBlending }));
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(2.6,2.6), new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:0.06, blending:THREE.AdditiveBlending }));
     glow.position.set(0,0,-0.2);
 
-    const group = new THREE.Group(); group.add(prism); group.add(edges); group.add(plate); group.add(glow);
-    group.userData = { data: data||{}, isOpen:false, baseMat: mat };
+    const group = new THREE.Group(); group.add(mesh); group.add(plate); group.add(glow);
+    group.position.set((Math.random()-0.5)*60, (Math.random()-0.5)*30, (Math.random()-0.5)*60);
+    group.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+    group.scale.setScalar(THREE.MathUtils.lerp(1.05, 1.5, Math.random()));
+    group.userData = { title:`كبسولة #${i+1}`, message:`هذه رسالة تجريبية للكبسولة رقم ${i+1}.\nمرحبا بك في Trox!`, username:`User${i+1}`, rank, isOpen:false };
     return group;
   }
 
-  function addCapsuleEntry(id, data){
-    if(capsuleEntries.has(id)) return;
-    const mesh = createCapsuleMesh(data);
-    mesh.position.copy(randomPosition(isMobile()?120:180));
-    mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
-    mesh.scale.setScalar(THREE.MathUtils.lerp(1.0, 1.6, Math.random()));
-    scene.add(mesh);
-    capsuleEntries.set(id, { id, mesh, data });
-  }
-
-  function updateCapsuleEntry(id, data){
-    const entry = capsuleEntries.get(id);
-    if(!entry){ addCapsuleEntry(id,data); return; }
-    entry.data = data; entry.mesh.userData.data = data;
-  }
-
-  function removeCapsuleEntry(id){
-    const entry = capsuleEntries.get(id); if(!entry) return;
-    scene.remove(entry.mesh); capsuleEntries.delete(id);
-  }
-
-  function createDemoCapsules(){
-    const count = isMobile()?10:28;
-    for(let i=0;i<count;i++){
-      const rank = (i%7===0)? 'legend' : (i%3===0)? 'special':'common';
-      const data = { title:`كبسولة #${i+1}`, message:`هذه رسالة تجريبية للكبسولة ${i+1} — مرحبًا بك في Trox!`, username:`User${i+1}`, rank, ts: Date.now() - i*60000 };
-      addCapsuleEntry('demo-'+i, data);
-    }
-  }
-
-  function randomPosition(radius=150){
-    const u = Math.random(), v = Math.random();
-    const theta = 2*Math.PI*u; const phi = Math.acos(2*v-1);
-    const r = Math.cbrt(Math.random())*radius;
-    const x = r*Math.sin(phi)*Math.cos(theta), y = r*Math.sin(phi)*Math.sin(theta), z = r*Math.cos(phi);
-    return new THREE.Vector3(x,y,z);
-  }
-
-  // ---------- Interaction: split open + particles + sound ----------
   function onPointerDown(ev){
     ev.preventDefault();
     const rect = renderer.domElement.getBoundingClientRect();
     const clientX = ev.clientX || (ev.touches && ev.touches[0] && ev.touches[0].clientX);
     const clientY = ev.clientY || (ev.touches && ev.touches[0] && ev.touches[0].clientY);
-    if(clientX === undefined) return;
-    const x = ((clientX - rect.left) / rect.width) * 2 - 1;
-    const y = -((clientY - rect.top) / rect.height) * 2 + 1;
-    mouse.set(x,y); raycaster.setFromCamera(mouse, camera);
-    const objects = []; capsuleEntries.forEach(v=> objects.push(v.mesh));
-    const hits = raycaster.intersectObjects(objects, true);
+    if(clientX===undefined) return;
+    mouse.x = ((clientX - rect.left)/rect.width)*2 - 1;
+    mouse.y = -((clientY - rect.top)/rect.height)*2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    const objs = [];
+    capsules.forEach(c=> objs.push(c));
+    const hits = raycaster.intersectObjects(scene.children, true);
     if(hits.length>0){
-      let obj = hits[0].object;
-      while(obj && !Array.from(capsuleEntries.values()).some(v=>v.mesh===obj)) obj = obj.parent;
-      const entry = Array.from(capsuleEntries.values()).find(v=>v.mesh===obj);
-      if(entry) splitOpenCapsule(entry);
+      // find group
+      let o = hits[0].object;
+      while(o && !capsules.includes(o)) o = o.parent;
+      // sometimes hit child; find top-level in our capsules array:
+      let top = null;
+      for(const g of capsules){ if(g===o || g.children.includes(o) || g.uuid===o.uuid) { top=g; break; } }
+      if(!top){ // fallback, find nearest parent
+        top = capsules.find(g=> g.uuid=== (o&&o.parent?o.parent.uuid: null));
+      }
+      if(top) openCapsule(top);
     }
   }
 
-  // WebAudio short open sound
-  function playOpenSound(){
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.type = 'sine'; o.frequency.value = 520;
-      o.connect(g); g.connect(ctx.destination);
-      const now = ctx.currentTime;
-      g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(0.08, now+0.02);
-      o.start(now); o.frequency.exponentialRampToValueAtTime(260, now+0.2);
-      g.gain.exponentialRampToValueAtTime(0.0001, now+0.6);
-      setTimeout(()=>{ o.stop(); ctx.close(); }, 700);
-    } catch(e){}
-  }
-
-  // split open animation: clone halves -> animate -> particles -> overlay -> reassemble
-  function splitOpenCapsule(entry){
-    const g = entry.mesh; if(g.userData.isOpen) return; g.userData.isOpen = true;
-    const orig = g;
-    // clones as halves
-    const left = orig.clone(true), right = orig.clone(true);
-    left.position.copy(orig.position); left.quaternion.copy(orig.quaternion); left.scale.copy(orig.scale);
-    right.position.copy(orig.position); right.quaternion.copy(orig.quaternion); right.scale.copy(orig.scale);
+  function openCapsule(g){
+    if(g.userData.isOpen) return;
+    g.userData.isOpen = true;
+    // split visual: clone left & right, remove original
+    const left = g.clone(true), right = g.clone(true);
+    left.position.copy(g.position); right.position.copy(g.position);
+    left.quaternion.copy(g.quaternion); right.quaternion.copy(g.quaternion);
+    left.scale.copy(g.scale); right.scale.copy(g.scale);
     scene.add(left); scene.add(right);
-    scene.remove(orig);
+    scene.remove(g);
 
-    playOpenSound();
-    particleFlash(left.position, 30, entry.data && entry.data.rank);
+    // particles
+    particleFlash(left.position, 26, g.userData.rank);
+    // sound (soft) - simple oscillator (mobile browsers may require user gesture which we have)
+    try{ const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o = ctx.createOscillator(), ga = ctx.createGain(); o.type='sine'; o.frequency.value=420; o.connect(ga); ga.connect(ctx.destination); ga.gain.value=0.0001; ga.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime+0.02); o.start(); ga.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.6); setTimeout(()=>{ o.stop(); ctx.close(); },650); }catch(e){}
 
-    const start = performance.now(), dur = 420;
-    function animateSplit(t){
-      const p = Math.min(1,(t-start)/dur); const ease = 1 - Math.pow(1-p,3);
-      const sep = new THREE.Vector3(1,0,0).applyQuaternion(left.quaternion).multiplyScalar(2.2 * ease * (1 + (left.scale.x-1)*0.3));
-      left.position.copy(orig.position).add(sep.clone().multiplyScalar(-1));
-      right.position.copy(orig.position).add(sep.clone());
-      left.rotation.x += 0.02*(1+ease); right.rotation.x -= 0.02*(1+ease);
-      // emissive
-      left.children[0].material.emissiveIntensity = 0.9*ease; right.children[0].material.emissiveIntensity = 0.9*ease;
-      if(p<1) requestAnimationFrame(animateSplit);
+    // animate separation
+    const start = performance.now(); const dur=420;
+    function step(t){
+      const p = Math.min(1,(t-start)/dur); const e = 1 - Math.pow(1-p,3);
+      const sep = new THREE.Vector3(1,0,0).applyQuaternion(left.quaternion).multiplyScalar(2.0 * e * (1 + (left.scale.x-1)*0.4));
+      left.position.copy(g.position).add(sep.clone().multiplyScalar(-1));
+      right.position.copy(g.position).add(sep);
+      left.rotation.x += 0.02*(1+e); right.rotation.x -= 0.02*(1+e);
+      if(p<1) requestAnimationFrame(step);
       else {
-        showOverlay(entry);
+        // show overlay
+        ovTitle.textContent = g.userData.title || 'كبسولة خالدة';
+        ovMeta.textContent = `${g.userData.username || 'مجهول'} • ${g.userData.rank || 'عادية'}`;
+        ovBody.textContent = g.userData.message || 'لا توجد رسالة';
+        overlay.style.display = 'block';
+        // auto reassemble after 5s
         setTimeout(()=> {
-          // reassemble
-          const s2 = performance.now(), d2 = 380;
+          const s2 = performance.now(), d2=380;
           function reasm(t2){
             const q = Math.min(1,(t2-s2)/d2); const e2 = 1 - Math.pow(1-q,3);
             const sepNow = sep.clone().multiplyScalar(1-e2);
-            left.position.copy(orig.position).add(sepNow.clone().multiplyScalar(-1));
-            right.position.copy(orig.position).add(sepNow);
-            left.children[0].material.emissiveIntensity = 0.9*(1-e2);
-            right.children[0].material.emissiveIntensity = 0.9*(1-e2);
+            left.position.copy(g.position).add(sepNow.clone().multiplyScalar(-1));
+            right.position.copy(g.position).add(sepNow);
+            left.rotation.x += 0.002; right.rotation.x -= 0.002;
             if(q<1) requestAnimationFrame(reasm);
             else {
               scene.remove(left); scene.remove(right);
-              orig.userData.isOpen = false;
-              if(orig.userData.baseMat) orig.userData.baseMat.emissiveIntensity = 0.12;
-              scene.add(orig);
-              hideOverlay();
+              scene.add(g);
+              g.userData.isOpen = false;
+              overlay.style.display = 'none';
             }
           }
           requestAnimationFrame(reasm);
         }, 5000);
       }
     }
-    requestAnimationFrame(animateSplit);
+    requestAnimationFrame(step);
   }
 
-  // particle flash
-  function particleFlash(center, amount=24, rank){
+  function particleFlash(center, amount=20, rank){
     for(let i=0;i<amount;i++){
-      const g = new THREE.SphereGeometry(0.04 + Math.random()*0.14, 6, 6);
+      const geom = new THREE.SphereGeometry(0.04 + Math.random()*0.12, 6,6);
       const color = (rank && rank.toString().toLowerCase().includes('legend')) ? 0xffd166 : (rank && rank.toString().toLowerCase().includes('special') ? 0xb36aff : 0x44b3ff);
       const mat = new THREE.MeshBasicMaterial({ color, transparent:true, opacity:1, blending: THREE.AdditiveBlending });
-      const p = new THREE.Mesh(g, mat);
+      const p = new THREE.Mesh(geom, mat);
       p.position.copy(center);
       p.userData = { vel: new THREE.Vector3((Math.random()-0.5)*2.2, (Math.random()-0.5)*2.2, (Math.random()-0.5)*2.2), life:0 };
-      scene.add(p); transientParticles.push(p);
+      scene.add(p); particles.push(p);
     }
   }
 
   function updateParticles(dt){
-    for(let i=transientParticles.length-1;i>=0;i--){
-      const p = transientParticles[i];
+    for(let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
       p.position.addScaledVector(p.userData.vel, dt);
       p.userData.life += dt;
       p.material.opacity = Math.max(0, 1 - p.userData.life*1.2);
-      if(p.userData.life > 1.2){ scene.remove(p); transientParticles.splice(i,1); }
+      if(p.userData.life > 1.2){ scene.remove(p); particles.splice(i,1); }
     }
   }
 
-  function showOverlay(entry){
-    const d = entry.data || entry.mesh.userData.data || {};
-    ovTitle.textContent = d.title || 'كبسولة خالدة';
-    const dateStr = d.ts ? new Date(d.ts).toLocaleString('ar-EG') : '';
-    ovMeta.textContent = `${d.username||'مجهول'} • ${d.rank||'عادية'} • ${dateStr}`;
-    ovBody.textContent = d.message || 'لا توجد رسالة';
-    overlay.style.display = 'block';
-  }
-  function hideOverlay(){ overlay.style.display = 'none'; }
-
-  // ---------- animation loop ----------
   function animate(){
     requestAnimationFrame(animate);
-    const now = performance.now(); const dt = (now - prevTime)/1000; prevTime = now;
+    const now = performance.now();
+    const dt = Math.min((now - (animate._prev || now))/1000, 0.06);
+    animate._prev = now;
 
-    // capsule floating
-    capsuleEntries.forEach(entry => {
-      const m = entry.mesh;
-      m.userData._float = m.userData._float || { t: Math.random()*100 };
-      m.userData._float.t += dt * 0.45 * (0.6 + (m.scale.x-1)*0.3);
-      m.position.y += Math.sin(m.userData._float.t) * 0.02;
-      m.rotation.y += 0.0012 * (0.8 + (m.scale.x-1)*0.6);
+    // float capsules
+    capsules.forEach(c=>{
+      c.userData._t = (c.userData._t || Math.random()*100) + dt*0.5;
+      c.position.y += Math.sin(c.userData._t)*0.01;
+      c.rotation.y += 0.0012;
     });
 
     updateParticles(dt);
@@ -428,34 +278,11 @@ html,body{height:100%;margin:0;background:linear-gradient(180deg,#000010,#000);c
     renderer.render(scene, camera);
   }
 
-  function onResize(){ camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
-
-  // pointer binding
-  renderer && renderer.domElement && renderer.domElement.addEventListener('pointerdown', onPointerDown, {passive:false});
-  renderer && renderer.domElement && renderer.domElement.addEventListener('touchstart', onPointerDown, {passive:false});
-
-  // ---------- Auth UI ----------
-  openLoginBtn.addEventListener('click', ()=> { loginModal.style.display = 'block'; });
-  ovClose.addEventListener('click', hideOverlay);
-
-  btnRegister.addEventListener('click', async ()=>{
-    if(!FIREBASE_ENABLED){ alert('Firebase غير مفعل الآن'); return; }
-    const email = document.getElementById('email').value.trim(); const pass = document.getElementById('password').value;
-    if(!email || !pass){ alert('املأ البريد وكلمة المرور'); return; }
-    try { const auth = getAuth(); await createUserWithEmailAndPassword(auth, email, pass); alert('تم إنشاء الحساب'); loginModal.style.display='none'; }
-    catch(err){ alert('خطأ: '+err.message); }
-  });
-
-  btnSignIn.addEventListener('click', async ()=>{
-    if(!FIREBASE_ENABLED){ alert('Firebase غير مفعل الآن'); return; }
-    const email = document.getElementById('email').value.trim(); const pass = document.getElementById('password').value;
-    if(!email || !pass){ alert('املأ البريد وكلمة المرور'); return; }
-    try { const auth = getAuth(); await signInWithEmailAndPassword(auth, email, pass); alert('تم تسجيل الدخول'); loginModal.style.display='none'; }
-    catch(err){ alert('خطأ: '+err.message); }
-  });
-
-  // cleanup
-  window.addEventListener('beforeunload', ()=>{ try{ renderer.dispose(); }catch(e){} });
+  function onResize(){
+    camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+  window.addEventListener('resize', onResize);
 
   </script>
 </body>
